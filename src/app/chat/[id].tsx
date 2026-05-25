@@ -93,11 +93,13 @@ export default function ChatScreen() {
 
   return (
     <View style={styles.screen}>
+      <SafeAreaView edges={['top']} style={{ backgroundColor: '#16181D' }}>
         <ChatHeader
           name={name || 'Chat'}
           avatarUrl={avatar || 'https://i.pravatar.cc/150?img=33'}
           onBack={() => router.back()}
         />
+      </SafeAreaView>
 
         <FlatList
           data={MESSAGES}

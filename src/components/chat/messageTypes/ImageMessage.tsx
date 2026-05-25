@@ -1,13 +1,16 @@
-import React from 'react';
-import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ReadReceipt from '../ReadReceipt';
 import { Message } from '@/interfaces/Message';
+import ImagePreview from '@/components/utils/ImagePreview';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 
 export default function ImageMessage({message}: {message: Message}) {
-  const { imageUrl, time, isSent, isRead } = message;
+  const { imageUrl = '', time, isSent, isRead } = message;
+  const [visible, setIsVisible] = useState(false);
+  
   return (
         <View style={[bubbleStyles.row, isSent && bubbleStyles.rowSent]}>
           <View
@@ -16,11 +19,17 @@ export default function ImageMessage({message}: {message: Message}) {
               isSent ? bubbleStyles.imageBubbleSent : bubbleStyles.imageBubbleReceived,
             ]}
           >
-            <Image
-              source={{ uri: imageUrl }}
-              style={bubbleStyles.image}
-              resizeMode="cover"
-            />
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setIsVisible(true)}
+            >
+              <Image
+                source={{ uri: imageUrl }}
+                style={bubbleStyles.image}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+            <ImagePreview images={[{uri: imageUrl}]} visible={visible} setIsVisible={setIsVisible} />
             <View style={bubbleStyles.imageTimeOverlay}>
               <Text style={bubbleStyles.imageTime}>{time}</Text>
               {isSent && <ReadReceipt isRead={isRead} />}
