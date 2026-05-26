@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "123302997708",
+    "firebase_url": "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "justtalk-app",
+    "storage_bucket": "justtalk-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123302997708:android:42d9120db6a9e720e01c69",
+        "android_client_info": {
+          "package_name": "pl.adiksuu.justtalk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVetEHEqYGouagJ6KG6yFoxzPOdGNETOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

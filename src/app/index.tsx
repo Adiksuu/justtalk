@@ -3,7 +3,7 @@ import Filters from '@/components/ui/Filters';
 import Header from '@/components/ui/Header';
 import Stories from '@/components/ui/Stories';
 import TabBar from '@/components/utils/TabBar';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -11,16 +11,21 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function HomeScreen() {
   const [activeFilter, setActiveFilter] = useState('Personal');
   const [activeTab] = useState('home');
   const router = useRouter();
+  const [loggedIn] = useState(false);
 
   function handleTabChange(tab: string) {
     if (tab === 'profile') router.push('/profile');
   }
+
+  useFocusEffect(() =>{
+    if (!loggedIn) {
+      router.push('/login');
+    }
+  })
 
   return (
     <View style={styles.screen}>
