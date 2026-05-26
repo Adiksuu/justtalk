@@ -1,7 +1,7 @@
 {
   "name": "justtalk",
   "main": "expo-router/entry",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "author": "Adiksuu",
   "dependencies": {
     "@react-native-firebase/app": "^24.0.0",

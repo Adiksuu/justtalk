@@ -1,8 +1,8 @@
 import { View, Text, Modal, TouchableOpacity, TextInput, FlatList, StyleSheet } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { getFilteredCountries } from '@/_constants/COUNTRIES'
 import { Ionicons } from '@expo/vector-icons'
+import { getFilteredCountries } from '@/constants/COUNTRIES'
 
 export default function CountryModal({ modalVisible, setModalVisible, countryCode, setCountryCode, searchQuery, setSearchQuery }: { modalVisible: boolean, setModalVisible: (visible: boolean) => void, countryCode: string, setCountryCode: (code: string) => void, searchQuery: string, setSearchQuery: (query: string) => void }) {
     const handleSelectCountry = (code: string) => {
