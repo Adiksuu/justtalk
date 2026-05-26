@@ -1,10 +1,11 @@
+import auth from '@react-native-firebase/auth';
 import ChatList from '@/components/ui/ChatList';
 import Filters from '@/components/ui/Filters';
 import Header from '@/components/ui/Header';
 import Stories from '@/components/ui/Stories';
 import TabBar from '@/components/utils/TabBar';
-import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,17 +16,31 @@ export default function HomeScreen() {
   const [activeFilter, setActiveFilter] = useState('Personal');
   const [activeTab] = useState('home');
   const router = useRouter();
-  const [loggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
 
   function handleTabChange(tab: string) {
     if (tab === 'profile') router.push('/profile');
   }
 
-  useFocusEffect(() =>{
-    if (!loggedIn) {
-      router.push('/login');
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged((user) => {
+      setLoggedIn(!!user);
+    });
+    return subscriber;
+  }, [])
+
+  useEffect(() => {
+    if (loggedIn === false) {
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  })
+  }, [loggedIn, router])
+
+  if (loggedIn === null) {
+    return <View style={styles.screen} />;
+  }
 
   return (
     <View style={styles.screen}>
@@ -44,8 +59,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   screen: {

@@ -150,7 +150,6 @@ export default function PhoneAuth() {
     if (user) {
       console.log("Saving profile for user:", user.uid);
       
-      // 1. Perform the Realtime Database write in the background using the new modular SDK API
       const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
       set(ref(db, `users/${user.uid}`), {
         uid: user.uid,
@@ -166,7 +165,6 @@ export default function PhoneAuth() {
         console.log("Background DB write error:", dbErr);
       });
 
-      // 2. Update Auth Profile in the background (non-blocking)
       user.updateProfile({ displayName: fullName.trim() })
         .then(() => {
           console.log("Auth display name updated successfully in background.");
@@ -175,7 +173,6 @@ export default function PhoneAuth() {
           console.log("Background Auth update error:", authErr);
         });
 
-      // 3. Navigate instantly on client-side!
       setIsSaving(false);
       router.replace('/');
     } else {
