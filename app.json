@@ -2,7 +2,7 @@
   "expo": {
     "name": "justtalk",
     "slug": "justtalk",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "justtalk",
@@ -16,7 +16,10 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "pl.adiksuu.justtalk",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.INTERNET"
+      ]
     },
     "web": {
       "output": "static",
@@ -57,6 +60,19 @@
         "projectId": "6f9b608c-d2e1-414d-aefe-8ac622772b9d"
       }
     },
-    "owner": "adiksuu"
+    "owner": "adiksuu",
+    "ios": {
+      "infoPlist": {
+        "SKAdNetworkItems": [
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
+          }
+        ]
+      },
+      "bundleIdentifier": "pl.adiksuu.justtalk"
+    }
   }
 }

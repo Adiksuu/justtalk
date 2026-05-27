@@ -62,8 +62,8 @@ export default function card_2({
         <View style={styles.card}>
           <View style={styles.rowWithControl}>
             <View style={styles.rowLeft}>
-              <View style={[styles.iconBg, { backgroundColor: 'rgba(139, 92, 246, 0.12)' }]}>
-                <Ionicons name="moon-outline" size={20} color="#8B5CF6" />
+              <View style={[styles.iconBg, { backgroundColor: 'rgba(99, 102, 241, 0.12)' }]}>
+                <Ionicons name="moon-outline" size={20} color="#6366F1" />
               </View>
               <View>
                 <Text style={styles.rowLabel}>Haptics</Text>
@@ -80,8 +80,8 @@ export default function card_2({
           <View style={styles.separator} />
           <View style={styles.rowWithControl}>
             <View style={styles.rowLeft}>
-              <View style={[styles.iconBg, { backgroundColor: 'rgba(139, 92, 246, 0.12)' }]}>
-                <Ionicons name="notifications-outline" size={20} color="#8B5CF6" />
+              <View style={[styles.iconBg, { backgroundColor: 'rgba(99, 102, 241, 0.12)' }]}>
+                <Ionicons name="notifications-outline" size={20} color="#6366F1" />
               </View>
               <View>
                 <Text style={styles.rowLabel}>Push Notifications</Text>
@@ -98,8 +98,8 @@ export default function card_2({
           <View style={styles.separator} />
           <View style={styles.rowWithControl}>
             <View style={styles.rowLeft}>
-              <View style={[styles.iconBg, { backgroundColor: 'rgba(139, 92, 246, 0.12)' }]}>
-                <Ionicons name="shield-checkmark-outline" size={20} color="#8B5CF6" />
+              <View style={[styles.iconBg, { backgroundColor: 'rgba(99, 102, 241, 0.12)' }]}>
+                <Ionicons name="shield-checkmark-outline" size={20} color="#6366F1" />
               </View>
               <View>
                 <Text style={styles.rowLabel}>Biometric Lock</Text>
@@ -120,8 +120,8 @@ export default function card_2({
             style={styles.rowInteractable}
           >
             <View style={styles.rowLeft}>
-              <View style={[styles.iconBg, { backgroundColor: 'rgba(139, 92, 246, 0.12)' }]}>
-                <Ionicons name="help-buoy-outline" size={20} color="#8B5CF6" />
+              <View style={[styles.iconBg, { backgroundColor: 'rgba(99, 102, 241, 0.12)' }]}>
+                <Ionicons name="help-buoy-outline" size={20} color="#6366F1" />
               </View>
               <View>
                 <Text style={styles.rowLabel}>Help & Feedback</Text>
