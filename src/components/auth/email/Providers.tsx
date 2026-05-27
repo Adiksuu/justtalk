@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
-import { handleSignInWithGoogle } from '@/functions/auth';
+import { handleSignInWithFacebook, handleSignInWithGoogle } from '@/functions/auth';
 import { useRouter } from 'expo-router';
 
 export default function Providers() {
@@ -20,6 +20,15 @@ export default function Providers() {
             action: () => {
                 setLoading(true);
                 handleSignInWithGoogle(router);
+                setLoading(false);
+            }
+        },
+        {
+            name: 'Facebook',
+            icon: 'logo-facebook',
+            action: () => {
+                setLoading(true);
+                handleSignInWithFacebook(router);
                 setLoading(false);
             }
         }
@@ -53,6 +62,7 @@ export default function Providers() {
 const styles = StyleSheet.create({
     providerContainer: {
         marginTop: 8,
+        gap: 8,
     },
     alternativeButton: {
         flexDirection: 'row',

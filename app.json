@@ -36,7 +36,16 @@
       ],
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "2532917650511811",
+          "clientToken": "0abfd0b29d2e7edde8289867106f2696",
+          "displayName": "justtalk",
+          "scheme": "fb2532917650511811"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

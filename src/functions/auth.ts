@@ -1,9 +1,10 @@
 import { getApp } from "@react-native-firebase/app";
-import auth, { createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification, signInWithCredential, signInWithEmailAndPassword, signInWithPhoneNumber, signOut, updateProfile, verifyBeforeUpdateEmail } from "@react-native-firebase/auth";
+import auth, { createUserWithEmailAndPassword, FacebookAuthProvider, GoogleAuthProvider, sendEmailVerification, signInWithCredential, signInWithEmailAndPassword, signInWithPhoneNumber, signOut, updateProfile, verifyBeforeUpdateEmail } from "@react-native-firebase/auth";
 import { getDatabase, ref, set } from "@react-native-firebase/database";
 import { Router } from "expo-router";
 import { Animated, TextInput } from "react-native";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { AccessToken, LoginManager } from "react-native-fbsdk-next";
 
 // ----- PHONE AUTHENTICATION AND VERIFICATION FUNCTIONS -----
 
@@ -73,7 +74,7 @@ export function handleVerifyCode(confirmResult: any, otp: string[], router: Rout
     }
 }
 
-export function handleSaveProfile(fullName: string, email: string, setEmailError: React.Dispatch<React.SetStateAction<string>>, setIsSaving: (isSaving: boolean) => void, router: Router) {
+export async function handleSaveProfile(fullName: string, email: string, setEmailError: React.Dispatch<React.SetStateAction<string>>, setIsSaving: (isSaving: boolean) => void, router: Router) {
     if (!fullName.trim() || fullName.trim().length < 2) {
       setEmailError('Full name is required (minimum 2 characters)');
       return;
@@ -95,20 +96,7 @@ export function handleSaveProfile(fullName: string, email: string, setEmailError
     if (user) {
       console.log("Saving profile for user:", user.uid);
       
-      const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-      set(ref(db, `users/${user.uid}`), {
-        uid: user.uid,
-        fullName: fullName.trim(),
-        email: email.trim(),
-        phoneNumber: user.phoneNumber || '',
-        createdAt: new Date().toISOString()
-      })
-      .then(() => {
-        console.log("Database write completed in background!");
-      })
-      .catch(dbErr => {
-        console.error("Background DB write error:", dbErr);
-      });
+      await saveUserDataToRTDB(user);
 
       user.updateProfile({ displayName: fullName.trim() })
         .then(() => {
@@ -215,20 +203,7 @@ export const handleSignUpWithEmail = async (email: string, password: string, nam
       const userCredential = await createUserWithEmailAndPassword(auth(), email, password);
       const user = userCredential.user;
       await updateProfile(user, { displayName: name });
-      const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-      set(ref(db, `users/${user.uid}`), {
-        uid: user.uid,
-        fullName: name.trim(),
-        email: email.trim(),
-        phoneNumber: user.phoneNumber || '',
-        createdAt: new Date().toISOString()
-      })
-      .then(() => {
-        console.log("Database write completed in background!");
-      })
-      .catch(dbErr => {
-        console.error("Background DB write error:", dbErr);
-      });
+      await saveUserDataToRTDB(auth().currentUser);
       await sendEmailVerification(user)
       setLoading(false);
       router.replace('/');
@@ -258,8 +233,53 @@ export const handleSignInWithGoogle = async (router: Router) => {
 
         const googleCredential = GoogleAuthProvider.credential(idToken);
         await signInWithCredential(auth(), googleCredential);
+        await saveUserDataToRTDB(auth().currentUser);
         router.replace('/');
     } else {
         console.log('Google Sign-In was cancelled by the user');
     }
 }
+
+// ----- FACEBOOK SIGN IN -----
+
+export const handleSignInWithFacebook = async (router: Router) => {
+  try {
+    const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+
+    if (result.isCancelled) {
+      console.error('Facebook Sign-in cancelled');
+      return;
+    }
+
+    const data = await AccessToken.getCurrentAccessToken();
+    if (!data) {
+      throw new Error('Something went wrong obtaining access token');
+    }
+
+    const facebookCredential = FacebookAuthProvider.credential(data.accessToken);
+    await signInWithCredential(auth(), facebookCredential);
+    await saveUserDataToRTDB(auth().currentUser);
+    router.replace('/');
+  } catch (error) {
+    console.error('Facebook Sign-In error:', error);
+  } 
+}
+
+// FUCTION TO SAVE DATA TO RTD
+
+const saveUserDataToRTDB = async (user: any) => {
+    const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+    set(ref(db, `users/${user.uid}`), {
+        uid: user.uid,
+        fullName: user.displayName,
+        email: user.email,
+        phoneNumber: user.phoneNumber || '',
+        createdAt: new Date().toISOString()
+    })
+    .then(() => {
+        console.log("Database write completed in background!");
+    })
+    .catch(dbErr => {
+        console.error("Background DB write error:", dbErr);
+    });
+} 
