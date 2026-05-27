@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +19,8 @@ import ToggleMode from '@/components/auth/email/ToggleMode';
 import Inputs from '@/components/auth/email/inputs/Inputs';
 import Divider from '@/components/auth/email/Divider';
 import PhoneAlternative from '@/components/auth/email/PhoneAlternative';
+import { useRouter } from 'expo-router';
+import { handleSignInWithEmail, handleSignUpWithEmail } from '@/functions/auth';
 
 export default function EmailAuth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -27,6 +30,10 @@ export default function EmailAuth() {
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -93,15 +100,33 @@ export default function EmailAuth() {
               <Informations isLogin={isLogin} />
               <ToggleMode isLogin={isLogin} toggleMode={toggleMode} />
               <Inputs isLogin={isLogin} name={name} setName={setName} email={email} setEmail={setEmail} password={password} setPassword={setPassword} showPassword={showPassword} setShowPassword={setShowPassword} confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword} showConfirmPassword={showConfirmPassword} setShowConfirmPassword={setShowConfirmPassword} />
-              <TouchableOpacity style={styles.primaryButton} activeOpacity={0.7}>
-                <Text style={styles.primaryButtonText}>
-                  {isLogin ? 'Sign In' : 'Create Account'}
-                </Text>
-                <Ionicons
-                  name={isLogin ? 'log-in-outline' : 'person-add-outline'}
-                  size={18}
-                  color="#fff"
-                />
+              {error ? (
+                <View style={styles.errorContainer}>
+                  <Ionicons name="alert-circle-outline" size={16} color="#EF4444" />
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+              <TouchableOpacity style={styles.primaryButton} activeOpacity={0.7} disabled={loading} onPress={() => {
+                if (isLogin) {
+                  handleSignInWithEmail(email, password, setError, setLoading, router);
+                } else {
+                  handleSignUpWithEmail(email, password, name, confirmPassword, setError, setLoading, router);
+                }
+              }}>
+                {loading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <>
+                    <Text style={styles.primaryButtonText}>
+                      {isLogin ? 'Sign In' : 'Create Account'}
+                    </Text>
+                    <Ionicons
+                      name={isLogin ? 'log-in-outline' : 'person-add-outline'}
+                      size={18}
+                      color="#fff"
+                    />
+                  </>
+                )}
               </TouchableOpacity>
               <Divider />
               <PhoneAlternative />
@@ -144,5 +169,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 4,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
   },
 });

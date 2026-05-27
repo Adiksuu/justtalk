@@ -4,6 +4,8 @@ import { getDatabase, ref, set } from "@react-native-firebase/database";
 import { Router } from "expo-router";
 import { Animated, TextInput } from "react-native";
 
+// ----- PHONE AUTHENTICATION AND VERIFICATION FUNCTIONS -----
+
 export function handleSendCode(countryCode: string, phone: string, isDisabled: boolean, setCountdown: React.Dispatch<React.SetStateAction<number>>, setIsDisabled: (isDisabled: boolean) => void, fadeAnim: Animated.Value, slideAnim: Animated.Value, setStep: (step: 'phone' | 'otp' | 'email') => void, setConfirmResult: (confirmResult: any) => void, intervalRef: React.RefObject<number | null>, timerRef: React.RefObject<number | null>) {
     if (phone.length >= 6 && !isDisabled) {
         setCountdown(60);
@@ -143,6 +145,9 @@ export const handleLogout = async (setIsLoggingOut: React.Dispatch<React.SetStat
     }
 };
 
+
+// ----- EMAIL AUTHENTICATION AND VERIFICATION FUNCTIONS -----
+
 export const sendEmailVerify = async (email?: string) => {
   const user = auth().currentUser;
   if (user) {
@@ -161,4 +166,79 @@ export const sendEmailVerify = async (email?: string) => {
       console.error("Error sending email verification:", error);
     }
   }
+}
+
+export const handleSignInWithEmail = async (email: string, password: string, setError: React.Dispatch<React.SetStateAction<string>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, router: Router) => {
+    if (!email || !password) {
+        setError('Please enter your email and password');
+        return;
+    }
+    if (password.length < 6) {
+        setError('Password must be at least 6 characters long');
+        return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await auth().signInWithEmailAndPassword(email, password);
+      setLoading(false);
+      router.replace('/');
+    } catch (error: any) {
+      setLoading(false);
+      if (error.code === 'auth/user-not-found') {
+        setError('User not found');
+      } else if (error.code === 'auth/wrong-password') {
+        setError('Wrong password');
+      } else {
+        setError(error.message);
+      }
+    }
+}
+
+export const handleSignUpWithEmail = async (email: string, password: string, name: string, confirmPassword: string, setError: React.Dispatch<React.SetStateAction<string>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, router: Router) => {
+    if (!email || !password || !name || !confirmPassword) {
+        setError('Please enter your email and password');
+        return;
+    }
+    if (password.length < 6) {
+        setError('Password must be at least 6 characters long');
+        return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+      await user.updateProfile({ displayName: name });
+      const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+      set(ref(db, `users/${user.uid}`), {
+        uid: user.uid,
+        fullName: name.trim(),
+        email: email.trim(),
+        phoneNumber: user.phoneNumber || '',
+        createdAt: new Date().toISOString()
+      })
+      .then(() => {
+        console.log("Database write completed in background!");
+      })
+      .catch(dbErr => {
+        console.error("Background DB write error:", dbErr);
+      });
+      await sendEmailVerification(user)
+      setLoading(false);
+      router.replace('/');
+    } catch (error: any) {
+      setLoading(false);
+      if (error.code === 'auth/user-not-found') {
+        setError('User not found');
+      } else if (error.code === 'auth/wrong-password') {
+        setError('Wrong password');
+      } else {
+        setError(error.message);
+      }
+    }
 }

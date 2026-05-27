@@ -13,7 +13,20 @@
           "package_name": "pl.adiksuu.justtalk"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "123302997708-m31jbvb5s27ipb7448601feae1rip1hh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pl.adiksuu.justtalk",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "123302997708-su1nviu51b3varro59mveqgapev67beb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBVetEHEqYGouagJ6KG6yFoxzPOdGNETOQ"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "123302997708-su1nviu51b3varro59mveqgapev67beb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
