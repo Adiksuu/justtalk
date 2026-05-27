@@ -1,4 +1,5 @@
 import { sendEmailVerify } from '@/functions/auth'
+import { lightHaptic } from '@/functions/preferences'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
@@ -20,7 +21,7 @@ export default function card_1({ profile, formatJoinedDate, copyUserId, copiedId
             </View>
         </View>
         <View style={styles.separator} />
-        <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={() => sendEmailVerify(profile.email)}>
+        <TouchableOpacity style={styles.row} activeOpacity={0.7} onPress={profile.emailVerified ? () => {} : () => {sendEmailVerify(profile.email); lightHaptic();}}>
             <View style={styles.rowLeft}>
             <View style={[styles.iconBg, { backgroundColor: 'rgba(99, 102, 241, 0.12)' }]}>
                 <Ionicons name="mail-outline" size={20} color="#6366F1" />

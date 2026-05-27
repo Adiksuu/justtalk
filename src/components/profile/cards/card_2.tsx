@@ -5,8 +5,8 @@ import React, { useEffect, useRef } from 'react'
 import { Alert, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 
 export default function card_2({
-  darkModeEnabled,
-  setDarkModeEnabled,
+  hapticsEnabled,
+  setHapticsEnabled,
   notificationsEnabled,
   setNotificationsEnabled,
   biometricsEnabled,
@@ -19,7 +19,7 @@ export default function card_2({
   useEffect(() => {
     const loadPreferences = async () => {
       const preferences = await getPreferences()
-      setDarkModeEnabled(preferences.darkmode)
+      setHapticsEnabled(preferences.haptics)
       setNotificationsEnabled(preferences.notifications)
       setBiometricsEnabled(preferences.biometrics)
       prevBiometrics.current = preferences.biometrics
@@ -45,7 +45,7 @@ export default function card_2({
       prevBiometrics.current = biometricsValue
 
       const options = {
-        darkmode: darkModeEnabled,
+        haptics: hapticsEnabled,
         notifications: notificationsEnabled,
         biometrics: biometricsValue,
       }
@@ -53,7 +53,7 @@ export default function card_2({
     }
     handleSave()
     
-  }, [darkModeEnabled, notificationsEnabled, biometricsEnabled])
+  }, [hapticsEnabled, notificationsEnabled, biometricsEnabled])
 
 
   return (
@@ -66,13 +66,13 @@ export default function card_2({
                 <Ionicons name="moon-outline" size={20} color="#8B5CF6" />
               </View>
               <View>
-                <Text style={styles.rowLabel}>Dark Theme</Text>
-                <Text style={styles.rowSubLabel}>Always display dark theme modes</Text>
+                <Text style={styles.rowLabel}>Haptics</Text>
+                <Text style={styles.rowSubLabel}>Vibrations for user interactions</Text>
               </View>
             </View>
             <Switch
-              value={darkModeEnabled}
-              onValueChange={(val) => setDarkModeEnabled(val)}
+              value={hapticsEnabled}
+              onValueChange={(val) => setHapticsEnabled(val)}
               trackColor={{ false: '#2D3139', true: '#6366F1' }}
               thumbColor={Platform.OS === 'ios' ? '#FFFFFF' : '#FFFFFF'}
             />

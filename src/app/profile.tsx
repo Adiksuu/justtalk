@@ -36,7 +36,7 @@ export default function ProfileScreen() {
   });
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(true);
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const toastAnim = useRef(new Animated.Value(-100)).current;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -137,8 +137,8 @@ export default function ProfileScreen() {
             copiedId={copiedId}
           />
           <Card_2
-            darkModeEnabled={darkModeEnabled}
-            setDarkModeEnabled={setDarkModeEnabled}
+            hapticsEnabled={hapticsEnabled}
+            setHapticsEnabled={setHapticsEnabled}
             notificationsEnabled={notificationsEnabled}
             setNotificationsEnabled={setNotificationsEnabled}
             biometricsEnabled={biometricsEnabled}
