@@ -5,6 +5,7 @@ import { Router } from "expo-router";
 import { Animated, TextInput } from "react-native";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { AccessToken, LoginManager } from "react-native-fbsdk-next";
+import * as LocalAuthentication from 'expo-local-authentication';
 
 // ----- PHONE AUTHENTICATION AND VERIFICATION FUNCTIONS -----
 
@@ -283,3 +284,23 @@ const saveUserDataToRTDB = async (user: any) => {
         console.error("Background DB write error:", dbErr);
     });
 } 
+
+// ----- BIOMETRIC AUTHENTICATION -----
+
+export const handleBiometricAuth = async () => {
+  const hasHardware = await LocalAuthentication.hasHardwareAsync();
+  if (!hasHardware) return;
+
+  const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+  if (!isEnrolled) return;
+
+  const result = await LocalAuthentication.authenticateAsync({
+    promptMessage: 'Login with Biometrics',
+    promptSubtitle: 'Use your fingerprint or face',
+    promptDescription: 'Confirm your identity',
+    cancelLabel: 'Cancel',
+    disableDeviceFallback: false,
+    biometricsSecurityLevel: 'strong',
+  });
+  return result;
+};

@@ -1,5 +1,7 @@
+import { handleBiometricAuth } from '@/functions/auth'
+import { getPreferences, savePreferences } from '@/functions/preferences'
 import { Ionicons } from '@expo/vector-icons'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Alert, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 
 export default function card_2({
@@ -10,6 +12,50 @@ export default function card_2({
   biometricsEnabled,
   setBiometricsEnabled,
 }: any) {
+
+  const hasLoaded = useRef(false)
+  const prevBiometrics = useRef<boolean | null>(null)
+
+  useEffect(() => {
+    const loadPreferences = async () => {
+      const preferences = await getPreferences()
+      setDarkModeEnabled(preferences.darkmode)
+      setNotificationsEnabled(preferences.notifications)
+      setBiometricsEnabled(preferences.biometrics)
+      prevBiometrics.current = preferences.biometrics
+      hasLoaded.current = true
+    }
+    loadPreferences()
+  }, [])
+
+  useEffect(() => {
+    if (!hasLoaded.current) return
+
+    const handleSave = async () => {
+      let biometricsValue = biometricsEnabled
+
+      if (prevBiometrics.current !== null && prevBiometrics.current !== biometricsEnabled) {
+        const result = await handleBiometricAuth()
+        if (!result?.success) {
+          setBiometricsEnabled(prevBiometrics.current)
+          return
+        }
+      }
+
+      prevBiometrics.current = biometricsValue
+
+      const options = {
+        darkmode: darkModeEnabled,
+        notifications: notificationsEnabled,
+        biometrics: biometricsValue,
+      }
+      savePreferences(options)
+    }
+    handleSave()
+    
+  }, [darkModeEnabled, notificationsEnabled, biometricsEnabled])
+
+
   return (
     <>
         <Text style={styles.sectionTitle}>Settings</Text>

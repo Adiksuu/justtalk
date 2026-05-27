@@ -1,13 +1,28 @@
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
+import { handleBiometricAuth } from '@/functions/auth';
+import { ifBiometricsEnabled } from '@/functions/preferences';
 
 export default function Logout({isLoggingOut, openLogoutConfirm}: {isLoggingOut: boolean, openLogoutConfirm: () => void}) {
+    const verifyHandleLogout = async () => {
+        const biometricsEnabled = await ifBiometricsEnabled();
+        if (biometricsEnabled) {
+            const result = await handleBiometricAuth();
+
+            if (result?.success) {
+                openLogoutConfirm()
+            }
+        } else {
+            openLogoutConfirm()
+        }
+    }
+
   return (
     <View style={styles.logoutCard}>
         <TouchableOpacity
             activeOpacity={0.7} 
-            onPress={openLogoutConfirm} 
+            onPress={verifyHandleLogout} 
             style={styles.logoutRow}
         >
             {isLoggingOut ? (
