@@ -1,4 +1,4 @@
-import auth from '@react-native-firebase/auth';
+import auth, { onAuthStateChanged } from '@react-native-firebase/auth';
 import ChatList from '@/components/ui/ChatList';
 import Filters from '@/components/ui/Filters';
 import Header from '@/components/ui/Header';
@@ -23,7 +23,7 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged((user) => {
+    const subscriber = onAuthStateChanged(auth(), (user) => {
       setLoggedIn(!!user);
     });
     return subscriber;

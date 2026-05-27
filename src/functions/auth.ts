@@ -1,8 +1,9 @@
 import { getApp } from "@react-native-firebase/app";
-import auth, { sendEmailVerification, verifyBeforeUpdateEmail } from "@react-native-firebase/auth";
+import auth, { createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification, signInWithCredential, signInWithEmailAndPassword, signInWithPhoneNumber, signOut, updateProfile, verifyBeforeUpdateEmail } from "@react-native-firebase/auth";
 import { getDatabase, ref, set } from "@react-native-firebase/database";
 import { Router } from "expo-router";
 import { Animated, TextInput } from "react-native";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 // ----- PHONE AUTHENTICATION AND VERIFICATION FUNCTIONS -----
 
@@ -12,7 +13,7 @@ export function handleSendCode(countryCode: string, phone: string, isDisabled: b
         setIsDisabled(true);
         fadeAnim.setValue(0);
         slideAnim.setValue(30);
-        auth().signInWithPhoneNumber(`${countryCode}${phone}`).then((result) => {
+        signInWithPhoneNumber(auth(), `${countryCode}${phone}`).then((result) => {
             setConfirmResult(result);
         }).catch((error) => {
             console.log(error)
@@ -137,7 +138,7 @@ export const handleLogout = async (setIsLoggingOut: React.Dispatch<React.SetStat
     setIsLoggingOut(true);
     closeLogoutConfirm();
     try {
-      await auth().signOut();
+      await signOut(auth());
       router.replace('/login');
     } catch (e) {
       console.error("Signout failed:", e);
@@ -180,7 +181,7 @@ export const handleSignInWithEmail = async (email: string, password: string, set
     setLoading(true);
     setError('');
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      await signInWithEmailAndPassword(auth(), email, password);
       setLoading(false);
       router.replace('/');
     } catch (error: any) {
@@ -211,9 +212,9 @@ export const handleSignUpWithEmail = async (email: string, password: string, nam
     setLoading(true);
     setError('');
     try {
-      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth(), email, password);
       const user = userCredential.user;
-      await user.updateProfile({ displayName: name });
+      await updateProfile(user, { displayName: name });
       const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
       set(ref(db, `users/${user.uid}`), {
         uid: user.uid,
@@ -240,5 +241,25 @@ export const handleSignUpWithEmail = async (email: string, password: string, nam
       } else {
         setError(error.message);
       }
+    }
+}
+
+// ----- GOOGLE SIGN IN -----
+
+export const handleSignInWithGoogle = async (router: Router) => {
+    const response = await GoogleSignin.signIn();
+
+    if (response.type === 'success') {
+        const idToken = response.data.idToken;
+
+        if (!idToken) {
+            throw new Error('Google Sign-In failed: No ID Token found');
+        }
+
+        const googleCredential = GoogleAuthProvider.credential(idToken);
+        await signInWithCredential(auth(), googleCredential);
+        router.replace('/');
+    } else {
+        console.log('Google Sign-In was cancelled by the user');
     }
 }

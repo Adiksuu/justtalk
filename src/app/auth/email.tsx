@@ -21,6 +21,7 @@ import Divider from '@/components/auth/email/Divider';
 import PhoneAlternative from '@/components/auth/email/PhoneAlternative';
 import { useRouter } from 'expo-router';
 import { handleSignInWithEmail, handleSignUpWithEmail } from '@/functions/auth';
+import Providers from '@/components/auth/email/Providers';
 
 export default function EmailAuth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -130,6 +131,7 @@ export default function EmailAuth() {
               </TouchableOpacity>
               <Divider />
               <PhoneAlternative />
+              <Providers />
             </Animated.View>
           </ScrollView>
         </KeyboardAvoidingView>
