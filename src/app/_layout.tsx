@@ -2,6 +2,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function RootLayout() {
@@ -14,14 +15,16 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: '#0B0C0E' },
-          animation: 'slide_from_right',
-        }}
-      />
-      <StatusBar style="light" />
+      <KeyboardProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: '#0B0C0E' },
+            animation: 'slide_from_right',
+          }}
+        />
+        <StatusBar style="light" />
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

@@ -65,11 +65,13 @@ export const acceptNewFriend = async (targetUID: string) => {
                 [currentUser.uid]: null
             })
 
+            const chatId = currentUser.uid > targetUID ? `${currentUser.uid}_${targetUID}` : `${targetUID}_${currentUser.uid}`;
+
             await update(ref(db, `friends/${currentUser.uid}/`), {
-                [targetUID]: true
+                [targetUID]: chatId
             })
             await update(ref(db, `friends/${targetUID}/`), {
-                [currentUser.uid]: true
+                [currentUser.uid]: chatId
             })
             
             return true;
@@ -255,3 +257,26 @@ export const subscribeToRequests = ({ filter, currentUserId, onDataChange, getUs
         console.error(`Error while listening to ${subPath}:`, error);
     });
 };
+
+// Get chatID function
+export const getChatID = async (targetUID: string) => {
+    try {
+       const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const currentUser = auth().currentUser;
+
+        if (currentUser && targetUID) {
+            const snapshot = await get(ref(db, `friends/${currentUser.uid}/${targetUID}/`));
+            if (snapshot.exists()) {
+                const chatId = snapshot.val();
+                return chatId;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
