@@ -32,8 +32,8 @@ export default function Filters({ activeFilter, setActiveFilter }: { activeFilte
 
 const styles = StyleSheet.create({
     chipsScroll: {
-    flexGrow: 0,
-    marginTop: 16,
+      flexGrow: 0,
+      marginTop: 16,
   },
   chipsContainer: {
     paddingHorizontal: 20,

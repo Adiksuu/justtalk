@@ -34,7 +34,7 @@ export default function ProfileScreen() {
     emailVerified: false,
     phoneNumber: '',
   });
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [showToast, setShowToast] = useState(false);

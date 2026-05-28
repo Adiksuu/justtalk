@@ -38,7 +38,7 @@ export const getPreferences = async () => {
         console.log('Error getting preferences:', error)
     }
     return {
-        haptics: false,
+        haptics: true,
         notifications: false,
         biometrics: false,
     }
