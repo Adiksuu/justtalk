@@ -25,7 +25,6 @@ export default function SearchResult({ uid, data, isSent, handleAddFriend }: { u
           style={[styles.addFriendBtn, isSent && styles.addFriendBtnSent]}
           activeOpacity={0.7}
           onPress={() => handleAddFriend(uid)}
-          disabled={isSent}
         >
           <Ionicons
             name={isSent ? 'checkmark' : 'person-add-outline'}

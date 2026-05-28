@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const [activeFilter, setActiveFilter] = useState('Personal');
+  const [activeFilter, setActiveFilter] = useState('Friends');
   const [activeTab] = useState('home');
   const router = useRouter();
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
@@ -48,7 +48,7 @@ export default function HomeScreen() {
         <Header />
         <Stories />
         <Filters activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
-        <ChatList />
+        <ChatList filter={activeFilter} />
       </SafeAreaView>
       <TabBar
         currentTab={activeTab}

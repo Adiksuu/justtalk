@@ -2,7 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-nati
 import React from 'react'
 
 export default function Filters({ activeFilter, setActiveFilter }: { activeFilter: string; setActiveFilter: (filter: string) => void }) {
-    const FILTER_CHIPS = ['All', 'Personal', 'Family', 'Office', 'Book Club'];
+    const FILTER_CHIPS = ['Friends', 'Incoming', 'Outgoing'];
 
   return (
     <ScrollView

@@ -1,60 +1,40 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { getInitials } from '@/functions/profile';
 
 interface ChatItemProps {
-  avatarUrl: string;
   name: string;
   lastMessage: string;
   time: string;
   unreadCount?: number;
-  isMuted?: boolean;
-  isPinned?: boolean;
-  isGroup?: boolean;
   senderName?: string;
   onPress?: () => void;
 }
 
 export default function ChatItem({
-  avatarUrl,
   name,
   lastMessage,
   time,
   unreadCount,
-  isMuted = false,
-  isPinned = false,
-  isGroup = false,
   senderName,
   onPress,
 }: ChatItemProps) {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={onPress}>
-      {/* Avatar */}
       <View style={styles.avatarWrapper}>
-        <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+        <Text style={styles.resultAvatarText}>
+          {getInitials(name)}
+        </Text>
       </View>
-
-      {/* Content */}
       <View style={styles.content}>
-        {/* Top row: name + time */}
         <View style={styles.topRow}>
           <View style={styles.nameRow}>
             <Text style={styles.name} numberOfLines={1}>
               {name}
             </Text>
-            {isMuted && (
-              <Ionicons
-                name="volume-mute"
-                size={13}
-                color="#6B7280"
-                style={styles.icon}
-              />
-            )}
           </View>
           <Text style={styles.time}>{time}</Text>
         </View>
-
-        {/* Bottom row: message preview + unread / pin badge */}
         <View style={styles.bottomRow}>
           <Text style={styles.messagePreview} numberOfLines={2}>
             {senderName ? (
@@ -66,14 +46,11 @@ export default function ChatItem({
               lastMessage
             )}
           </Text>
-
           <View style={styles.badgeArea}>
             {unreadCount ? (
               <View style={styles.unreadBadge}>
                 <Text style={styles.unreadText}>{unreadCount}</Text>
               </View>
-            ) : isPinned ? (
-              <Ionicons name="pin" size={14} color="#6B7280" style={{ transform: [{ rotate: '45deg' }] }} />
             ) : null}
           </View>
         </View>
@@ -94,14 +71,14 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    overflow: 'hidden',
-    backgroundColor: '#2A2D35',
-    flexShrink: 0,
+    backgroundColor: '#2D2F38',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  avatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+  resultAvatarText: {
+    color: '#F9FAFB',
+    fontSize: 15,
+    fontWeight: '700',
   },
   content: {
     flex: 1,

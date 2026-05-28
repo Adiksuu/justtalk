@@ -1,94 +1,75 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import ChatItem from '../utils/ChatItem';
+import { acceptNewFriend, cancelNewFriend, getUserData, subscribeToRequests } from '@/functions/friends';
+import SearchResult from './friends/SearchResult';
 
-export default function ChatList() {
+import auth from "@react-native-firebase/auth";
+
+interface ChatListProps {
+    filter: string;
+}
+
+export default function ChatList({ filter }: ChatListProps) {
     const router = useRouter();
 
-    const CHATS = [
-        {
-            id: '1',
-            name: 'Henry Kim',
-            avatarUrl: 'https://i.pravatar.cc/150?img=33',
-            lastMessage:
-            '$1,350 per month. Utilities and one assigned parking spot in the garage ar...',
-            time: '20:33',
-            unreadCount: 1,
-        },
-        {
-            id: '2',
-            name: 'Team chat 🔕',
-            avatarUrl: 'https://i.pravatar.cc/150?img=68',
-            lastMessage: 'Any updates on this task? Please let me know if you need anythin...',
-            time: '20:20',
-            isMuted: true,
-            isPinned: true,
-            isGroup: true,
-            senderName: 'Mira Vale',
-        },
-        {
-            id: '3',
-            name: 'Greta',
-            avatarUrl: 'https://i.pravatar.cc/150?img=1',
-            lastMessage: 'means a lot, thanks 🙌',
-            time: '18:04',
-        },
-        {
-            id: '4',
-            name: 'Oliver Blake',
-            avatarUrl: 'https://i.pravatar.cc/150?img=12',
-            lastMessage: 'Sure, I will send over the files tomorrow morning.',
-            time: '17:45',
-        },
-        {
-            id: '5',
-            name: 'Family 🏠',
-            avatarUrl: 'https://i.pravatar.cc/150?img=44',
-            lastMessage: 'Mom: Don\'t forget dinner this Sunday!',
-            time: 'Yesterday',
-            isGroup: true,
-            senderName: 'Mom',
-        },
-        {
-            id: '6',
-            name: 'Mira Vale',
-            avatarUrl: 'https://i.pravatar.cc/150?img=9',
-            lastMessage: 'Got it. See you at the meeting.',
-            time: 'Yesterday',
-        },
-        {
-            id: '7',
-            name: 'Book Club 📚',
-            avatarUrl: 'https://i.pravatar.cc/150?img=60',
-            lastMessage: 'Next book is "The Midnight Library" — starts Friday!',
-            time: 'Mon',
-            isGroup: true,
-            senderName: 'Sarah',
-            unreadCount: 4,
-        },
-    ];
+    const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
+    const [outgoingRequests, setOutgoingRequests] = useState<any[]>([]);
+    const [friends, setFriends] = useState<any[]>([]);
 
-  return (
+    useEffect(() => {
+        const currentUser = auth().currentUser;
+        if (!currentUser) return;
+
+        const unsubscribe = subscribeToRequests({
+            filter,
+            currentUserId: currentUser.uid,
+            getUserData,
+            onDataChange: (data) => {
+                if (filter === 'Incoming') {
+                    setIncomingRequests(data);
+                } else if (filter === 'Outgoing') {
+                    setOutgoingRequests(data);
+                } else {
+                    setFriends(data);
+                }
+            }
+        });
+        return () => unsubscribe();
+    }, [filter]);
+
+  return filter === 'Friends' ? (
     <FlatList
-        data={CHATS}
-        keyExtractor={(item) => item.id}
+        data={friends}
+        keyExtractor={(item) => item.uid}
         renderItem={({ item }) => (
         <ChatItem
-            avatarUrl={item.avatarUrl}
-            name={item.name}
+            name={item.fullName}
             lastMessage={item.lastMessage}
             time={item.time}
             unreadCount={item.unreadCount}
-            isMuted={item.isMuted}
-            isPinned={item.isPinned}
-            isGroup={item.isGroup}
             senderName={item.senderName}
             onPress={() => router.push({
                 pathname: '/chat/[id]',
-                params: { id: item.id, name: item.name, avatar: item.avatarUrl },
+                params: { id: item.uid, name: item.fullName, avatar: item.avatarUrl },
             })}
         />
+        )}
+        contentContainerStyle={styles.chatList}
+        showsVerticalScrollIndicator={false}
+    />
+  ) : (
+    <FlatList
+        data={filter === 'Incoming' ? incomingRequests : outgoingRequests}
+        keyExtractor={(item: any) => item.uid} 
+        renderItem={({ item }: any) => (
+            <SearchResult  
+                uid={item.uid} 
+                data={item} 
+                isSent={filter === 'Outgoing'} 
+                handleAddFriend={(uid: string) => filter === 'Incoming' ? acceptNewFriend(uid) : cancelNewFriend(uid)} 
+            />
         )}
         contentContainerStyle={styles.chatList}
         showsVerticalScrollIndicator={false}

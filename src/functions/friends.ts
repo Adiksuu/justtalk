@@ -1,5 +1,5 @@
 import { getApp } from "@react-native-firebase/app";
-import { get, getDatabase, ref, update } from "@react-native-firebase/database";
+import { DatabaseReference, get, getDatabase, onValue, ref, update } from "@react-native-firebase/database";
 
 import auth from "@react-native-firebase/auth";
 
@@ -20,6 +20,31 @@ export const addNewFriend = async (targetUID: string) => {
         } else {
             return false;
         }
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+// Cancel new friend request function
+export const cancelNewFriend = async (targetUID: string) => {
+    try {
+       const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const currentUser = auth().currentUser;
+
+        if (currentUser && targetUID) {
+            await update(ref(db, `friends_requests/${currentUser.uid}/outgoing/`), {
+                [targetUID]: null
+            })
+            await update(ref(db, `friends_requests/${targetUID}/incoming/`), {
+                [currentUser.uid]: null
+            })
+            
+            return true;
+        } else {
+            return false;
+        } 
+        
     } catch (error) {
         console.error(error);
         return false;
@@ -135,3 +160,98 @@ export const searchUser = async (username: string) => {
         return [];
     }
 }
+
+// Get friends function
+export const getFriends = async () => {
+    try {
+       const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const currentUser = auth().currentUser;
+
+        if (currentUser) {
+            const snapshot = await get(ref(db, `friends/${currentUser.uid}/`));
+            if (snapshot.exists()) {
+                const friends = snapshot.val();
+                console.log(friends);
+                return friends;
+            } else {
+                return [];
+            }
+        } else {
+            return [];
+        } 
+        
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+// Get user data function
+export const getUserData = async (uid: string) => {
+    try {
+       const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+
+       if (uid) {
+        const snapshot = await get(ref(db, `users/${uid}/`));
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            console.log(userData);
+            return userData;
+        } else {
+            return null;
+        }
+       } else {
+        return null;
+       }
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+
+interface SubscribeOptions {
+    filter: 'Incoming' | 'Outgoing' | 'Friends' | string;
+    currentUserId: string;
+    onDataChange: (data: any[]) => void;
+    getUserData: (uid: string) => Promise<any>;
+}
+
+export const subscribeToRequests = ({ filter, currentUserId, onDataChange, getUserData }: SubscribeOptions) => {
+    const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+    
+    let requestsRef: DatabaseReference;
+    let subPath: string;
+
+    if (filter === 'Friends') {
+        requestsRef = ref(db, `friends/${currentUserId}/`);
+    } else {
+        subPath = filter === 'Incoming' ? 'incoming' : 'outgoing';
+        requestsRef = ref(db, `friends_requests/${currentUserId}/${subPath}/`);
+    }
+
+    return onValue(requestsRef, async (snapshot) => {
+        if (snapshot.exists()) {
+            const requests = snapshot.val();
+            
+            let uids: string[] = [];
+            if (requests && typeof requests === 'object' && !Array.isArray(requests)) {
+                uids = Object.keys(requests);
+            } else if (Array.isArray(requests)) {
+                uids = requests.filter(Boolean);
+            }
+
+            const fullDataPromises = uids.map(async (uid: string) => {
+                const userData = await getUserData(uid);
+                return { uid, ...userData };
+            });
+            
+            const resolvedRequests = await Promise.all(fullDataPromises);
+            onDataChange(resolvedRequests);
+        } else {
+            onDataChange([]);
+        }
+    }, (error) => {
+        console.error(`Error while listening to ${subPath}:`, error);
+    });
+};
