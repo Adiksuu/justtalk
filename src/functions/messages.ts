@@ -3,10 +3,11 @@ import { getApp } from "@react-native-firebase/app";
 import auth from "@react-native-firebase/auth";
 import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query, ref, update } from "@react-native-firebase/database";
 import { decryptMessage, encryptMessage } from "./crypto";
-import { getChatID } from "./friends";
+import { getChatID, getUserData } from "./friends";
+import { sendRemotePushNotification } from "./notifications";
 
 // Function to send messages
-export const sendMessage = async (message: string, chatId: string) => {
+export const sendMessage = async (message: string, chatId: string, friendUID: string) => {
     const currentUser = auth().currentUser;
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const messageId = Date.now().toString();
@@ -22,6 +23,9 @@ export const sendMessage = async (message: string, chatId: string) => {
             uid: currentUser?.uid,
         },
     });
+
+    const friend = await getUserData(friendUID);
+    await sendRemotePushNotification(friendUID, message, friend.fullName);
 }
 
 // Function to get latest message in chat
@@ -124,7 +128,6 @@ export const loadMoreMessages = async (chatId: string, limit: number) => {
         return [];
     }
 }
-
 
 export const initChatListener = async (uid: string, setChatState: any, unsubscribeChat: any) => {
     const id = await getChatID(uid);

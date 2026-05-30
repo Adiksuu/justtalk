@@ -6,7 +6,7 @@ import { KeyboardStickyView, useKeyboardHandler } from 'react-native-keyboard-co
 import { runOnJS } from 'react-native-reanimated';
 import { sendMessage } from '@/functions/messages';
 
-export default function InputBar({ chatId }: { chatId: string }) {
+export default function InputBar({ chatId, friendUID }: { chatId: string, friendUID: string }) {
   const [text, setText] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const insets = useSafeAreaInsets();
@@ -24,7 +24,7 @@ export default function InputBar({ chatId }: { chatId: string }) {
 
   const handleSendMessage = () => {
     if (text.trim() !== '') {
-      sendMessage(text, chatId);
+      sendMessage(text, chatId, friendUID);
       setText('');
     }
   }

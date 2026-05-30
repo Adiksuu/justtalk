@@ -13,7 +13,7 @@ import { subscribeToMessages } from '@/functions/messages';
 
 export default function ChatScreen() {
   const router = useRouter();
-  const { id, name, avatar } = useLocalSearchParams<{ id: string; name: string; avatar: string }>();
+  const { id, name, avatar, friendUID } = useLocalSearchParams<{ id: string; name: string; avatar: string; friendUID: string }>();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [limit, setLimit] = useState(10);
@@ -76,7 +76,7 @@ export default function ChatScreen() {
             }}
           />
         </View>
-        <InputBar chatId={id || ''} />
+        <InputBar chatId={id || ''} friendUID={friendUID || ''}/>
       </KeyboardAvoidingView>
     </View>
   );

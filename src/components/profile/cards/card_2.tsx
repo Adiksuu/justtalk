@@ -1,8 +1,10 @@
 import { handleBiometricAuth } from '@/functions/auth'
+import { registerForPushNotificationsAsync } from '@/functions/notifications'
 import { getPreferences, savePreferences } from '@/functions/preferences'
 import { Ionicons } from '@expo/vector-icons'
 import React, { useEffect, useRef } from 'react'
 import { Alert, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
+import auth from "@react-native-firebase/auth";
 
 export default function card_2({
   hapticsEnabled,
@@ -40,6 +42,10 @@ export default function card_2({
           setBiometricsEnabled(prevBiometrics.current)
           return
         }
+      }
+
+      if (notificationsEnabled) {
+        registerForPushNotificationsAsync(auth().currentUser?.uid!)
       }
 
       prevBiometrics.current = biometricsValue

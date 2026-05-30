@@ -116,7 +116,7 @@ function LiveChatItem({ friend, router }: { friend: any; router: any }) {
                 if (chatState.chatID) {
                     router.push({
                         pathname: '/chat/[id]',
-                        params: { id: chatState.chatID, name: friend.fullName, avatar: friend.avatarUrl },
+                        params: { id: chatState.chatID, name: friend.fullName, avatar: friend.avatarUrl, friendUID: friend.uid },
                     });
                 }
             }}
