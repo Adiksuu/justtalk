@@ -5,10 +5,10 @@ export interface Message {
   text?: string;
   imageUrl?: string;
   time: string;
-  isSent: boolean;
+  isSent?: boolean;
   isRead?: boolean;
   reaction?: string;
 }
 
 
-export type MessageType = 'text' | 'image';
+export type MessageType = 'text' | 'image' | 'typing';

@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { subscribeToActivity } from '@/functions/activity';
 
 export default function HomeScreen() {
   const [activeFilter, setActiveFilter] = useState('Friends');
@@ -25,6 +26,9 @@ export default function HomeScreen() {
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth(), (user) => {
       setLoggedIn(!!user);
+      if (user) {
+        subscribeToActivity(user.uid);
+      }
     });
     return subscriber;
   }, [])

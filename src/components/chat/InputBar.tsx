@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardStickyView, useKeyboardHandler } from 'react-native-keyboard-controller';
 import { runOnJS } from 'react-native-reanimated';
 import { sendMessage } from '@/functions/messages';
+import { setUserTyping } from '@/functions/activity';
 
 export default function InputBar({ chatId, friendUID }: { chatId: string, friendUID: string }) {
   const [text, setText] = useState('');
@@ -25,6 +26,7 @@ export default function InputBar({ chatId, friendUID }: { chatId: string, friend
   const handleSendMessage = () => {
     if (text.trim() !== '') {
       sendMessage(text, chatId, friendUID);
+      setUserTyping(chatId, "")
       setText('');
     }
   }
@@ -52,7 +54,10 @@ export default function InputBar({ chatId, friendUID }: { chatId: string, friend
           placeholderTextColor="#6B7280"
           style={inputStyles.input}
           value={text}
-          onChangeText={setText}
+          onChangeText={(value) => {
+            setText(value);
+            setUserTyping(chatId, value)
+          }}
           onSubmitEditing={() => handleSendMessage()}
         />
       </View>

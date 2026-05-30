@@ -1,8 +1,28 @@
+import { subscribeToUserActivity } from '@/functions/activity';
+import { timeAgo } from '@/functions/messages';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function ChatHeader({ name, avatarUrl, onBack,}: { name: string; avatarUrl: string; onBack: () => void;}) {
+export default function ChatHeader({ name, avatarUrl, onBack, friendUID }: { name: string; avatarUrl: string; onBack: () => void; friendUID: string }) {
+  const [activeStatus, setActiveStatus] = useState<{ state: string; lastSeen: number } | null>(null);
+
+  useEffect(() => {
+    if (!friendUID) return;
+
+    const unsubscribe = subscribeToUserActivity(friendUID, (snapshot: any) => {
+      if (!snapshot) return;
+
+      setActiveStatus(snapshot);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [friendUID]);
+
+console.log(activeStatus, friendUID )
+
   return (
     <View style={headerStyles.container}>
       <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={headerStyles.backBtn}>
@@ -11,14 +31,14 @@ export default function ChatHeader({ name, avatarUrl, onBack,}: { name: string; 
 
       <View style={headerStyles.avatarWrapper}>
         <Image source={{ uri: avatarUrl }} style={headerStyles.avatar} />
-        <View style={headerStyles.onlineDot} />
+        <View style={activeStatus?.state === 'online' ? headerStyles.onlineDot : headerStyles.offlineDot} />
       </View>
 
       <View style={headerStyles.info}>
         <Text style={headerStyles.name} numberOfLines={1}>
           {name}
         </Text>
-        <Text style={headerStyles.status}>last seen just now</Text>
+        <Text style={headerStyles.status}>{activeStatus?.state === 'online' ? 'Just now' : `last seen ${timeAgo(activeStatus?.lastSeen)}`}</Text>
       </View>
 
       {/* <View style={headerStyles.actions}>
@@ -67,6 +87,17 @@ const headerStyles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     backgroundColor: '#22C55E',
+    borderWidth: 2,
+    borderColor: '#16181D',
+  },
+  offlineDot: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#6B7280',
     borderWidth: 2,
     borderColor: '#16181D',
   },

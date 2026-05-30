@@ -10,6 +10,7 @@ import MessageBubble from '@/components/chat/MessageBubble';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { Message } from '@/interfaces/Message';
 import { subscribeToMessages } from '@/functions/messages';
+import { setUserTyping, subscribeToTypingStatus } from '@/functions/activity';
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function ChatScreen() {
 
   const [containerHeight, setContainerHeight] = useState(0);
   const [spacerHeight, setSpacerHeight] = useState(0);
+  const [isFriendTyping, setIsFriendTyping] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -35,6 +37,22 @@ export default function ChatScreen() {
     setLimit((prevLimit) => prevLimit + 10);
   };
 
+  useEffect(() => {
+    return () => {
+      if (id) setUserTyping(id, ""); 
+    };
+  }, [id]);
+
+  useEffect(() => {
+    if (!friendUID) return;
+
+    const unsubscribe = subscribeToTypingStatus(id || '', friendUID || '', (data: boolean) => {
+      setIsFriendTyping(data);
+    });
+
+    return () => unsubscribe();
+  }, [id, friendUID]);
+
   return (
     <View style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -49,6 +67,7 @@ export default function ChatScreen() {
             name={name || 'Chat'}
             avatarUrl={avatar || 'https://i.pravatar.cc/150?img=33'}
             onBack={() => router.back()}
+            friendUID={friendUID}
           />
         </SafeAreaView>
         <View style={styles.listContainer} onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}>
@@ -75,8 +94,11 @@ export default function ChatScreen() {
               }
             }}
           />
+          {isFriendTyping ? (
+            <MessageBubble message={{ type: 'typing', text: `${name} is typing...`, uid: '', id: 'typing', time: '',  }} />
+          ) : null}
         </View>
-        <InputBar chatId={id || ''} friendUID={friendUID || ''}/>
+        <InputBar chatId={id || ''} friendUID={friendUID || ''} />
       </KeyboardAvoidingView>
     </View>
   );
@@ -96,5 +118,16 @@ const styles = StyleSheet.create({
   },
   invertedItem: {
     paddingVertical: 4,
+  },
+  typingIndicator: {
+    width: 60,
+    height: 24,
+    backgroundColor: '#272932',
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 6,
+    marginHorizontal: 10,
   },
 });

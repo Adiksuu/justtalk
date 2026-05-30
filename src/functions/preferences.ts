@@ -28,6 +28,17 @@ export const lightHaptic = async () => {
     }
 }
 
+export const heavyHaptic = async () => {
+    try {
+        const data = await getPreferences();
+        if (data.haptics) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        }
+    } catch (error) {
+        console.log('Error with heavy haptic:', error)
+    }
+}
+
 export const getPreferences = async () => {
     try {
         const jsonData: any = await AsyncStorage.getItem('@justtalk_preferences')

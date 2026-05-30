@@ -5,6 +5,7 @@ import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query
 import { decryptMessage, encryptMessage } from "./crypto";
 import { getChatID, getUserData } from "./friends";
 import { sendRemotePushNotification } from "./notifications";
+import { heavyHaptic } from "./preferences";
 
 // Function to send messages
 export const sendMessage = async (message: string, chatId: string, friendUID: string) => {
@@ -68,6 +69,22 @@ export const formatTime = (milliseconds: number | any) => {
     } else {
         return date.toLocaleDateString();
     }
+}
+
+// Function to format time ago
+export const timeAgo = (timestamp: number | any) => {
+    if (!timestamp) return 'Offline';
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (minutes < 1) return '1m ego';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return formatTime(timestamp);
 }
 
 export const subscribeToMessages = (
@@ -140,6 +157,9 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const chatRef = ref(db, `chats/${id}/messages`);
 
+    let isFirstLoad = true;
+    const currentUserId = auth().currentUser?.uid;
+
     unsubscribeChat = onValue(chatRef, async () => {
         const latest = await getLatestMessage(id);
         setChatState({
@@ -147,6 +167,10 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
             lastMessage: latest,
             loading: false
         });
+
+        if (!isFirstLoad && latest && latest.uid !== currentUserId) heavyHaptic();
+
+        isFirstLoad = false;
     }, (error) => {
         console.error("Error listening to chat messages:", error);
     });
