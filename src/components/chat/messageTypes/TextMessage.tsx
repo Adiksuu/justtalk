@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import ReadReceipt from '../ReadReceipt';
+import { formatTime } from '@/functions/messages';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
@@ -11,7 +12,7 @@ export default function TextMessage({message}: {message: Message}) {
     const { text, time, isSent, isRead } = message;
     
   return (
-      <View style={[bubbleStyles.row, isSent && bubbleStyles.rowSent]}>
+      <View style={[bubbleStyles.row, isSent && bubbleStyles.rowSent, {transform: [{ scaleY: -1 }]}]}>
         {isSent ? (
           <LinearGradient
             colors={['#7C3AED', '#6366F1']}
@@ -23,7 +24,7 @@ export default function TextMessage({message}: {message: Message}) {
               {text}
             </Text>
             <View style={bubbleStyles.metaRow}>
-              <Text style={[bubbleStyles.timeText, { color: 'rgba(255,255,255,0.6)' }]}>{time}</Text>
+              <Text style={[bubbleStyles.timeText, { color: 'rgba(255,255,255,0.6)' }]}>{formatTime(time)}</Text>
               <ReadReceipt isRead={isRead} />
             </View>
           </LinearGradient>
@@ -33,7 +34,7 @@ export default function TextMessage({message}: {message: Message}) {
               {text}
             </Text>
             <View style={bubbleStyles.metaRow}>
-              <Text style={bubbleStyles.timeText}>{time}</Text>
+              <Text style={bubbleStyles.timeText}>{formatTime(time)}</Text>
             </View>
           </View>
         )}

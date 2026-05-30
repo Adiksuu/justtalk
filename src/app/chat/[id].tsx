@@ -1,35 +1,39 @@
-import React from 'react';
-import {
-  StyleSheet,
-  Platform,
-  View,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Platform, View } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// IMPORT Z NOWEJ BIBLIOTEKI
-import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { FlashList } from '@shopify/flash-list';
 
 import InputBar from '@/components/chat/InputBar';
 import MessageBubble from '@/components/chat/MessageBubble';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { Message } from '@/interfaces/Message';
-
-const MESSAGES: Message[] = [
-  { id: '1', type: 'text', text: 'day. Everything decent is either tiny or way over budget.', time: '20:09', isSent: false },
-  { id: '2', type: 'text', text: "It's close to the university, just a 10-minute walk through a nice park.", time: '20:12', isSent: false },
-  { id: '3', type: 'text', text: "But there's one place looks amazing", time: '20:20', isSent: false },
-  { id: '4', type: 'image', imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80', time: '20:20', isSent: false },
-  { id: '5', type: 'text', text: 'Love it 😍', time: '20:23', isSent: true, isRead: true },
-  { id: '6', type: 'text', text: 'The place looks very modern, with some really stylish furniture', time: '20:24', isSent: true, isRead: true },
-  { id: '7', type: 'text', text: 'Yeap', time: '20:28', isSent: false },
-  { id: '8', type: 'text', text: 'It was fully renovated last year 👆🧑‍🎨', time: '20:42', isSent: false },
-  { id: '9', type: 'text', text: "What's the monthly rent?", time: '20:44', isSent: true, isRead: true },
-  { id: '10', type: 'text', text: '$1,350 per month. Utilities and one assigned parking spot in the garage are included.', time: '20:45', isSent: false },
-];
+import { subscribeToMessages } from '@/functions/messages';
 
 export default function ChatScreen() {
   const router = useRouter();
   const { id, name, avatar } = useLocalSearchParams<{ id: string; name: string; avatar: string }>();
+  
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [limit, setLimit] = useState(10);
+
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [spacerHeight, setSpacerHeight] = useState(0);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const unsubscribe = subscribeToMessages(id, limit, (data: Message[]) => {
+      setMessages(data);
+    });
+
+    return () => unsubscribe();
+  }, [id, limit]);
+
+  const handleLoadMoreMessages = () => {
+    setLimit((prevLimit) => prevLimit + 10);
+  };
 
   return (
     <View style={styles.outerContainer}>
@@ -47,17 +51,31 @@ export default function ChatScreen() {
             onBack={() => router.back()}
           />
         </SafeAreaView>
+        <View style={styles.listContainer} onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}>
+          <FlashList 
+            data={messages}
+            renderItem={({ item }) => (
+              <View style={styles.invertedItem}>
+                <MessageBubble message={item} />
+              </View>
+            )}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            style={{ transform: [{ scaleY: -1 }] }}
+            onEndReached={handleLoadMoreMessages}
+            onEndReachedThreshold={0.2}
+            ListHeaderComponent={<View style={{ height: spacerHeight }} />}
+            onContentSizeChange={(w, h) => {
+              const pureContentHeight = h - spacerHeight;
+              const remainingSpace = containerHeight - pureContentHeight;
+              const nextSpacerHeight = Math.max(0, remainingSpace);
 
-        <KeyboardAwareScrollView 
-          style={styles.listContainer}
-          contentContainerStyle={styles.messageList}
-          showsVerticalScrollIndicator={false}
-        >
-          {MESSAGES.map((item) => (
-            <MessageBubble key={item.id} message={item} />
-          ))}
-        </KeyboardAwareScrollView>
-
+              if (Math.abs(nextSpacerHeight - spacerHeight) > 1) {
+                setSpacerHeight(nextSpacerHeight);
+              }
+            }}
+          />
+        </View>
         <InputBar chatId={id || ''} />
       </KeyboardAvoidingView>
     </View>
@@ -74,10 +92,9 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-  },
-  messageList: {
-    paddingTop: 12,
-    paddingBottom: 16,
     paddingHorizontal: 12,
+  },
+  invertedItem: {
+    paddingVertical: 4,
   },
 });

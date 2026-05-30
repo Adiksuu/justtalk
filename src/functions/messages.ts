@@ -1,6 +1,7 @@
+import { Message } from "@/interfaces/Message";
 import { getApp } from "@react-native-firebase/app";
 import auth from "@react-native-firebase/auth";
-import { get, getDatabase, limitToLast, orderByKey, query, ref, update } from "@react-native-firebase/database";
+import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query, ref, update } from "@react-native-firebase/database";
 
 // Function to send messages
 export const sendMessage = async (message: string, chatId: string) => {
@@ -17,24 +18,6 @@ export const sendMessage = async (message: string, chatId: string) => {
             uid: currentUser?.uid,
         },
     });
-}
-
-// Function to fast load last few messages
-export const fastLoadMessages = async (chatId: string, limit: number = 20) => {
-    try {
-        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const snapshot = await get(ref(db, `chats/${chatId}/messages/`));
-        if (snapshot.exists()) {
-            const messages = snapshot.val();
-            const lastFewMessages = Object.values(messages).slice(-limit);
-            return lastFewMessages;
-        } else {
-            return [];
-        }
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
 }
 
 // Function to get latest message in chat
@@ -60,11 +43,13 @@ export const getLatestMessage = async (chatId: string) => {
 }
 
 // Function to change milliseconds to time format HH:MM or Yesterday, Mon or Week ago etc.
-export const formatTime = (milliseconds: number) => {
+export const formatTime = (milliseconds: number | any) => {
     const date = new Date(milliseconds);
     const now = new Date();
     const diff = now.getTime() - milliseconds;
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (!milliseconds) return '';
     if (days === 0) {
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else if (days === 1) {
@@ -73,5 +58,64 @@ export const formatTime = (milliseconds: number) => {
         return date.toLocaleDateString([], { weekday: 'short' });
     } else {
         return date.toLocaleDateString();
+    }
+}
+
+export const subscribeToMessages = (
+    chatId: string, 
+    limitCount: number, 
+    onDataChange: (messages: Message[]) => void
+) => {
+    const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+    const messagesRef = ref(db, `chats/${chatId}/messages/`);
+
+    const q = query(messagesRef, orderByKey(), limitToLast(limitCount));
+
+    return onValue(q, (snapshot: any) => {
+        if (snapshot.exists()) {
+            const formattedMessages: Message[] = [];
+            const currentUser = auth().currentUser;
+
+            snapshot.forEach((childSnapshot: DataSnapshot) => {
+                const messageValue = childSnapshot.val();
+                formattedMessages.push({
+                    id: childSnapshot.key || '',
+                    ...messageValue,
+                    isSent: messageValue.uid === currentUser?.uid,
+                });
+            });
+            onDataChange(formattedMessages.reverse());
+        } else {
+            onDataChange([]);
+        }
+    });
+}
+
+// Load more messages when user scrolls to top
+export const loadMoreMessages = async (chatId: string, limit: number) => {
+    try {
+        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const messagesRef = ref(db, `chats/${chatId}/messages/`);
+        const latestMessageQuery = query(messagesRef, orderByKey(), limitToLast(limit));
+        
+        const snapshot = await get(latestMessageQuery);
+        
+        if (snapshot.exists()) {
+            const messages = snapshot.val();
+            const lastFewMessages: any = Object.values(messages).slice(-limit);
+            const currentUser = auth().currentUser;
+            const formattedMessages = lastFewMessages.map((message: Message) => {
+                return {
+                    ...message,
+                    isSent: message.uid === currentUser?.uid,
+                };
+            });
+            return formattedMessages;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error("Error fetching more messages:", error);
+        return [];
     }
 }

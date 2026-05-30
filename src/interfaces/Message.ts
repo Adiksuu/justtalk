@@ -1,5 +1,6 @@
 export interface Message {
   id: string;
+  uid: string;
   type: MessageType;
   text?: string;
   imageUrl?: string;

@@ -3,16 +3,17 @@ import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import ReadReceipt from '../ReadReceipt';
 import { Message } from '@/interfaces/Message';
 import ImagePreview from '@/components/utils/ImagePreview';
+import { formatTime } from '@/functions/messages';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 
 export default function ImageMessage({message}: {message: Message}) {
-  const { imageUrl = '', time, isSent, isRead } = message;
+  const { imageUrl = '', time = 0, isSent, isRead } = message;
   const [visible, setIsVisible] = useState(false);
   
   return (
-        <View style={[bubbleStyles.row, isSent && bubbleStyles.rowSent]}>
+        <View style={[bubbleStyles.row, isSent && bubbleStyles.rowSent, {transform: [{ scaleY: -1 }]}]}>
           <View
             style={[
               bubbleStyles.imageBubble,
@@ -31,7 +32,7 @@ export default function ImageMessage({message}: {message: Message}) {
             </TouchableOpacity>
             <ImagePreview images={[{uri: imageUrl}]} visible={visible} setIsVisible={setIsVisible} />
             <View style={bubbleStyles.imageTimeOverlay}>
-              <Text style={bubbleStyles.imageTime}>{time}</Text>
+              <Text style={bubbleStyles.imageTime}>{formatTime(time)}</Text>
               {isSent && <ReadReceipt isRead={isRead} />}
             </View>
           </View>

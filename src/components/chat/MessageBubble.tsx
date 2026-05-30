@@ -4,7 +4,7 @@ import ImageMessage from './messageTypes/ImageMessage';
 import TextMessage from './messageTypes/TextMessage';
 
 export default function MessageBubble({message}: {message: Message}) {
-  const { type, text, imageUrl, time, isSent, isRead } = message;
+  const { type } = message;
 
   switch (type) {
     case 'image':
