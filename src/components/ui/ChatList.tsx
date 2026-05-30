@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import ChatItem from '../utils/ChatItem';
 import { acceptNewFriend, cancelNewFriend, getChatID, getUserData, subscribeToRequests } from '@/functions/friends';
 import SearchResult from './friends/SearchResult';
 
 import auth from "@react-native-firebase/auth";
-import { formatTime, getLatestMessage } from '@/functions/messages';
+import { formatTime, getLatestMessage, initChatListener } from '@/functions/messages';
+import { getDatabase, onValue, ref } from '@react-native-firebase/database';
+import { getApp } from '@react-native-firebase/app';
 
 interface ChatListProps {
     filter: string;
@@ -27,30 +29,13 @@ export default function ChatList({ filter }: ChatListProps) {
             filter,
             currentUserId: currentUser.uid,
             getUserData,
-            onDataChange: async (data) => {
+            onDataChange: (data) => {
                 if (filter === 'Incoming') {
                     setIncomingRequests(data);
                 } else if (filter === 'Outgoing') {
                     setOutgoingRequests(data);
                 } else {
-                    const friendsWithMessages = await Promise.all(
-                        data.map(async (user: any) => {
-                            const chatID = await getChatID(user.uid);
-                            if (!chatID) {
-                                return { ...user, lastMessage: 'No messages' };
-                            }
-                            
-                            const lastMessage: any = await getLatestMessage(chatID);
-                            console.log(lastMessage);
-                            return {
-                                ...user,
-                                chatID,
-                                lastMessage: lastMessage ? lastMessage : 'No messages',
-                                time: formatTime(lastMessage?.time),
-                            };
-                        })
-                    );
-                    setFriends(friendsWithMessages);
+                    setFriends(data);
                 }
             }
         });
@@ -62,17 +47,7 @@ export default function ChatList({ filter }: ChatListProps) {
         data={friends}
         keyExtractor={(item) => item.uid}
         renderItem={({ item }) => (
-        <ChatItem
-            name={item.fullName}
-            lastMessage={item.lastMessage.text}
-            time={item.time}
-            unreadCount={item.unreadCount}
-            senderName={item.lastMessage?.uid === auth().currentUser?.uid ? 'You' : item.fullName}
-            onPress={() => router.push({
-                pathname: '/chat/[id]',
-                params: { id: item.chatID, name: item.fullName, avatar: item.avatarUrl },
-            })}
-        />
+            <LiveChatItem friend={item} router={router} />
         )}
         contentContainerStyle={styles.chatList}
         showsVerticalScrollIndicator={false}
@@ -95,10 +70,63 @@ export default function ChatList({ filter }: ChatListProps) {
   )
 }
 
+function LiveChatItem({ friend, router }: { friend: any; router: any }) {
+    const [chatState, setChatState] = useState<{
+        chatID: string | null;
+        lastMessage: any;
+        loading: boolean;
+    }>({
+        chatID: null,
+        lastMessage: null,
+        loading: true,
+    });
+
+    useEffect(() => {
+        let unsubscribeChat: (() => void) | null = null;
+
+        initChatListener(friend.uid, setChatState, (unsubscribe: () => void) => unsubscribeChat = unsubscribe);
+
+        return () => {
+            if (unsubscribeChat) unsubscribeChat();
+        };
+    }, [friend.uid]);
+
+    const displayDetails = useMemo(() => {
+        if (chatState.loading) {
+            return { text: 'Loading...', time: '', sender: '' };
+        }
+        if (!chatState.lastMessage) {
+            return { text: 'No messages', time: '', sender: '' };
+        }
+        return {
+            text: chatState.lastMessage.text || 'Sent an attachment',
+            time: formatTime(chatState.lastMessage.time),
+            sender: chatState.lastMessage.uid === auth().currentUser?.uid ? 'You' : friend.fullName
+        };
+    }, [chatState.lastMessage, chatState.loading, friend.fullName]);
+
+    return (
+        <ChatItem
+            name={friend.fullName}
+            lastMessage={displayDetails.text}
+            time={displayDetails.time}
+            unreadCount={friend.unreadCount}
+            senderName={displayDetails.sender}
+            onPress={() => {
+                if (chatState.chatID) {
+                    router.push({
+                        pathname: '/chat/[id]',
+                        params: { id: chatState.chatID, name: friend.fullName, avatar: friend.avatarUrl },
+                    });
+                }
+            }}
+        />
+    );
+}
 
 const styles = StyleSheet.create({
     chatList: {
         paddingTop: 12,
         paddingBottom: 120,
     },
-})
+});

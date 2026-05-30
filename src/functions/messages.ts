@@ -3,6 +3,7 @@ import { getApp } from "@react-native-firebase/app";
 import auth from "@react-native-firebase/auth";
 import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query, ref, update } from "@react-native-firebase/database";
 import { decryptMessage, encryptMessage } from "./crypto";
+import { getChatID } from "./friends";
 
 // Function to send messages
 export const sendMessage = async (message: string, chatId: string) => {
@@ -123,3 +124,27 @@ export const loadMoreMessages = async (chatId: string, limit: number) => {
         return [];
     }
 }
+
+
+export const initChatListener = async (uid: string, setChatState: any, unsubscribeChat: any) => {
+    const id = await getChatID(uid);
+    
+    if (!id) {
+        setChatState({ chatID: null, lastMessage: null, loading: false });
+        return;
+    }
+
+    const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+    const chatRef = ref(db, `chats/${id}/messages`);
+
+    unsubscribeChat = onValue(chatRef, async () => {
+        const latest = await getLatestMessage(id);
+        setChatState({
+            chatID: id,
+            lastMessage: latest,
+            loading: false
+        });
+    }, (error) => {
+        console.error("Error listening to chat messages:", error);
+    });
+};
