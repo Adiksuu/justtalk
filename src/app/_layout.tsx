@@ -1,3 +1,4 @@
+import 'react-native-get-random-values';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

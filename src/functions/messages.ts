@@ -2,18 +2,21 @@ import { Message } from "@/interfaces/Message";
 import { getApp } from "@react-native-firebase/app";
 import auth from "@react-native-firebase/auth";
 import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query, ref, update } from "@react-native-firebase/database";
+import { decryptMessage, encryptMessage } from "./crypto";
 
 // Function to send messages
 export const sendMessage = async (message: string, chatId: string) => {
     const currentUser = auth().currentUser;
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const messageId = Date.now().toString();
+
+    const encryptedText = encryptMessage(message, chatId);
     
     await update(ref(db, `chats/${chatId}/messages/`), {
         [messageId]: {
             id: messageId,
             type: 'text',
-            text: message,
+            text: encryptedText,
             time: Date.now(),
             uid: currentUser?.uid,
         },
@@ -31,8 +34,9 @@ export const getLatestMessage = async (chatId: string) => {
         
         if (snapshot.exists()) {
             const messagesObj = snapshot.val();
-            const latestMessage = Object.values(messagesObj)[0]; 
-            return latestMessage;
+            const latestMessage: any = Object.values(messagesObj)[0]; 
+            const decryptedText = decryptMessage(latestMessage.text || '', chatId);
+            return { ...latestMessage, text: decryptedText };
         } else {
             return { text: 'No messages' };
         }
