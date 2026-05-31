@@ -8,6 +8,7 @@ import { sendMessage } from '@/functions/messages';
 import { setUserTyping } from '@/functions/activity';
 import { Message } from '@/interfaces/Message';
 import ReplyBox from './ReplyBox';
+import { pickAndUploadMedia } from '@/functions/media';
 
 export default function InputBar({ 
   chatId, 
@@ -23,6 +24,7 @@ export default function InputBar({
   const [text, setText] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const insets = useSafeAreaInsets();
+  const [uploading, setUploading]: any = useState(false);
 
   useKeyboardHandler({
     onStart: (e) => {
@@ -37,11 +39,17 @@ export default function InputBar({
 
   const handleSendMessage = () => {
     if (text.trim() !== '') {
-      sendMessage(text, chatId, friendUID, replyingTo || undefined);
+      sendMessage(text, chatId, friendUID, replyingTo || undefined, 'text');
       setUserTyping(chatId, "");
       setText('');
       onCancelReply();
     }
+  }
+
+  const handleSendMedia = async () => {
+    const result = await pickAndUploadMedia(setUploading)
+    if (result) sendMessage('', chatId, friendUID, replyingTo || undefined, result.type, result.url);
+    onCancelReply();
   }
 
   const getBottomPadding = () => {
@@ -62,16 +70,17 @@ export default function InputBar({
       )}
 
       <View style={inputStyles.bottomRow}>
-        <TouchableOpacity activeOpacity={0.7} style={inputStyles.iconBtn}>
+        <TouchableOpacity activeOpacity={0.7} style={inputStyles.iconBtn} onPress={async () => handleSendMedia()}>
           <Ionicons name="attach-outline" size={22} color="#6B7280" style={{ transform: [{ rotate: '-45deg' }] }} />
         </TouchableOpacity>
 
         <View style={inputStyles.inputWrapper}>
           <TextInput
-            placeholder="Message"
-            placeholderTextColor="#6B7280"
-            style={inputStyles.input}
+            placeholder={uploading ? 'Uploading media...' : 'Message'}
+            placeholderTextColor={uploading ? '#6B7280' : '#9CA3AF'}
+            style={[inputStyles.input, uploading && inputStyles.disabled]}
             value={text}
+            editable={!uploading}
             onChangeText={(value) => {
               setText(value);
               setUserTyping(chatId, value)
@@ -118,4 +127,7 @@ const inputStyles = StyleSheet.create({
     fontSize: 15,
     padding: 0,
   },
+  disabled: {
+    opacity: 0.6,
+  }
 });

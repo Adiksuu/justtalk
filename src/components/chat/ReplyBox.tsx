@@ -11,8 +11,19 @@ export default function ReplyBox({replyingTo, onCancelReply, chatId}: {replyingT
         <View style={inputStyles.replyTextContainer}>
         <Text style={inputStyles.replyTitle}>Replying to message</Text>
         <Text style={inputStyles.replyText} numberOfLines={1}>
-            {replyingTo.type === 'image' ? '📷 Photo' : decryptMessage(replyingTo.text || '', chatId || '')}
-        </Text>
+            {replyingTo.type === 'image' || replyingTo.type === 'video' ? (
+            <>
+            <Ionicons 
+                name={replyingTo.type === 'image' ? "camera-outline" : "videocam-outline"} 
+                size={16} 
+                color={inputStyles.replyText.color || '#8e8e93'} 
+            />
+            {replyingTo.type === 'image' ? ' Photo' : ' Video'}
+        </>
+    ) : (
+        decryptMessage(replyingTo.text || '', chatId || '')
+    )}
+</Text>
         </View>
         <TouchableOpacity onPress={onCancelReply} style={inputStyles.cancelReplyBtn} activeOpacity={0.7}>
         <Ionicons name="close-circle" size={18} color="#6B7280" />

@@ -4,39 +4,47 @@ import ReadReceipt from '../ReadReceipt';
 import { Message } from '@/interfaces/Message';
 import ImagePreview from '@/components/utils/ImagePreview';
 import { formatTime } from '@/functions/messages';
+import RenderReactions from '../RenderReactions';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 
 export default function ImageMessage({message}: {message: Message}) {
-  const { imageUrl = '', time = 0, isSent, isRead } = message;
+  const { media = '', time = 0, isSent, isRead, reactions } = message;
+  const hasReactions = reactions && Object.keys(reactions).length > 0;
   const [visible, setIsVisible] = useState(false);
   
   return (
+        <>
         <View style={[bubbleStyles.row, isSent && bubbleStyles.rowSent, {transform: [{ scaleY: -1 }]}]}>
           <View
             style={[
               bubbleStyles.imageBubble,
               isSent ? bubbleStyles.imageBubbleSent : bubbleStyles.imageBubbleReceived,
+              hasReactions && bubbleStyles.containerWithReactions,
             ]}
           >
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setIsVisible(true)}
-            >
-              <Image
-                source={{ uri: imageUrl }}
-                style={bubbleStyles.image}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-            <ImagePreview images={[{uri: imageUrl}]} visible={visible} setIsVisible={setIsVisible} />
-            <View style={bubbleStyles.imageTimeOverlay}>
-              <Text style={bubbleStyles.imageTime}>{formatTime(time)}</Text>
-              {isSent && <ReadReceipt isRead={isRead} />}
+            <View style={bubbleStyles.imageInner}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setIsVisible(true)}
+              >
+                <Image
+                  source={{ uri: media }}
+                  style={bubbleStyles.image}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+              <View style={bubbleStyles.imageTimeOverlay}>
+                <Text style={bubbleStyles.imageTime}>{formatTime(time)}</Text>
+                {isSent && <ReadReceipt isRead={isRead} />}
+              </View>
             </View>
+            <RenderReactions reactions={reactions} isSent={isSent || false} />
           </View>
         </View>
+        <ImagePreview images={[{uri: media}]} visible={visible} setIsVisible={setIsVisible} />
+        </>
       );
 }
 
@@ -83,17 +91,20 @@ const bubbleStyles = StyleSheet.create({
     fontSize: 11,
     color: '#6B7280',
   },
-  // Image bubble
   imageBubble: {
-    borderRadius: 18,
-    overflow: 'hidden',
+    position: 'relative',
     maxWidth: MAX_BUBBLE_WIDTH * 0.85,
   },
+  containerWithReactions: {
+    marginBottom: 10,
+  },
+  imageInner: {
+    borderRadius: 18,
+    overflow: 'hidden',
+  },
   imageBubbleSent: {
-    borderBottomRightRadius: 4,
   },
   imageBubbleReceived: {
-    borderBottomLeftRadius: 4,
   },
   image: {
     width: MAX_BUBBLE_WIDTH * 0.85,

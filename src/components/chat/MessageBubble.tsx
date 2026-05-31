@@ -13,6 +13,7 @@ import SystemMessage from './messageTypes/SystemMessage';
 import { lightHaptic } from '@/functions/preferences';
 import { Ionicons } from '@expo/vector-icons';
 import MessagePreview from './MessagePreview';
+import VideoMessage from './messageTypes/VideoMessage';
 
 export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setReplyingToMessage }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void, setReplyingToMessage: (message: Message | null) => void }) {
   const { type, isSent } = message;
@@ -23,30 +24,29 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
     if (!chatId && type !== 'typing') return message.text;
     return decryptMessage(message.text || '', chatId);
   }, [message.text, chatId]);
+  
+  const decryptedMedia = useMemo(() => {
+    if (!chatId && type !== 'typing') return message.media;
+    return decryptMessage(message.media || '', chatId);
+  }, [message.media, chatId]);
 
   const decryptedReplyText = useMemo(() => {
     if (!message.replyingTo || !chatId) return message.replyingTo?.text;
-    if (message.replyingTo.type === 'image') return '📷 Photo';
+    if (message.replyingTo.type === 'image' || message.replyingTo.type === 'video') return `${message.replyingTo.media ? 'Photo' : 'Video'}`;
     return decryptMessage(message.replyingTo.text || '', chatId);
   }, [message.replyingTo, chatId]);
 
-  const doubleTap = Gesture.Tap()
-    .numberOfTaps(2)
-    .runOnJS(true)
-    .onStart(async () => {
+  const doubleTap = Gesture.Tap().numberOfTaps(2).runOnJS(true).onStart(async () => {
       if (type === 'system' || type === 'typing') return;
       lightHaptic()
       await reactToMessage(chatId || '', message.id, '❤️');
-    });
+  });
 
-  const longPress = Gesture.LongPress()
-    .minDuration(500)
-    .runOnJS(true)
-    .onStart(() => {
+  const longPress = Gesture.LongPress().minDuration(500).runOnJS(true).onStart(() => {
       if (type === 'system' || type === 'typing') return;
       lightHaptic()
       onToggleMenu(!isMenuOpen);
-    });
+  });
 
   const combinedGestures = Gesture.Race(doubleTap, longPress);
 
@@ -72,7 +72,9 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
   const renderMessageContent = () => {
     switch (type) {
       case 'image':
-        return <ImageMessage message={message} />;
+        return <ImageMessage message={{ ...message, media: decryptedMedia }} />;
+      case 'video':
+        return <VideoMessage message={{ ...message, media: decryptedMedia }} />;
       case 'typing':
         return <TypingMessage message={message} />;
       case 'system':

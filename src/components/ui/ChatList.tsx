@@ -74,13 +74,8 @@ export default function ChatList({ filter }: ChatListProps) {
         return [...friends].sort((a, b) => {
             const chatA = chatsState[a.uid]?.lastMessage;
             const chatB = chatsState[b.uid]?.lastMessage;
-
-            // Pobieramy timestamp (zakładam, że time to obiekt Date, timestamp z Firebase lub liczba ms)
-            // Jeśli nie ma wiadomości, ustawiamy 0, żeby pchać te czaty na sam dół
             const timeA = chatA?.time ? new Date(chatA.time).getTime() : 0;
             const timeB = chatB?.time ? new Date(chatB.time).getTime() : 0;
-
-            // Sortowanie malejąco (najnowsze wiadomości na górze)
             return timeB - timeA;
         });
     }, [friends, chatsState, filter]);
@@ -127,7 +122,7 @@ function LiveChatItem({ friend, router, chatState }: { friend: any; router: any;
             return { text: 'No messages', time: '', sender: '' };
         }
         return {
-            text: chatState.lastMessage.text || 'Sent an attachment',
+            text: chatState.lastMessage.type === 'text' ? chatState.lastMessage.text : "Sent an attachment",
             time: formatTime(chatState.lastMessage.time),
             sender: chatState.lastMessage.uid === auth().currentUser?.uid ? 'You' : friend.fullName
         };

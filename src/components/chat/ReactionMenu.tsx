@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         gap: 10,
         elevation: 5,
-        zIndex: 999,
+        zIndex: 99999,
         transform: [{ scaleY: -1 }] 
     }
 })

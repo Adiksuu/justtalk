@@ -3,7 +3,7 @@ export interface Message {
   uid: string;
   type: MessageType;
   text?: string;
-  imageUrl?: string;
+  media?: string;
   time: string;
   isSent?: boolean;
   isRead?: boolean;
@@ -12,4 +12,4 @@ export interface Message {
 }
 
 
-export type MessageType = 'text' | 'image' | 'typing' | 'system';
+export type MessageType = 'text' | 'image' | 'video' | 'typing' | 'system';

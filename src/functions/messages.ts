@@ -8,7 +8,7 @@ import { sendRemotePushNotification } from "./notifications";
 import { heavyHaptic, lightHaptic } from "./preferences";
 
 // Function to send messages
-export const sendMessage = async (message: string, chatId: string, friendUID: string, replyTo?: Message) => {
+export const sendMessage = async (message: string, chatId: string, friendUID: string, replyTo?: Message, type: string = "text", media?: string) => {
     const currentUser = auth().currentUser;
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const messageId = Date.now().toString();
@@ -18,11 +18,12 @@ export const sendMessage = async (message: string, chatId: string, friendUID: st
     await update(ref(db, `chats/${chatId}/messages/`), {
         [messageId]: {
             id: messageId,
-            type: 'text',
+            type: type,
             text: encryptedText,
             time: Date.now(),
             uid: currentUser?.uid,
             replyingTo: replyTo ? { ...replyTo, text: encryptedText, replyingTo: null } : null,
+            media: media ? encryptMessage(media, chatId) : null,
         },
     });
 
