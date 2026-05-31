@@ -3,7 +3,7 @@ import { StyleSheet, Platform, View } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { FlashList } from '@shopify/flash-list'; // Upewnij się, że import jest poprawny
+import { FlashList } from '@shopify/flash-list';
 
 import InputBar from '@/components/chat/InputBar';
 import MessageBubble from '@/components/chat/MessageBubble';
@@ -22,7 +22,6 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [limit, setLimit] = useState(10);
   
-  // Flagi blokujące zapętlanie
   const [hasMore, setHasMore] = useState(true);
   const isLoadingRef = useRef(false);
 
@@ -41,8 +40,6 @@ export default function ChatScreen() {
 
     isLoadingRef.current = true;
     const unsubscribe = subscribeToMessages(id, limit, (data: Message[]) => {
-      // Jeśli baza zwróciła mniej wiadomości niż wynosi obecny limit,
-      // oznacza to, że dotarliśmy do początku historii czatu.
       if (data.length < limit) {
         setHasMore(false);
       } else {
@@ -57,7 +54,6 @@ export default function ChatScreen() {
   }, [id, limit]);
 
   const handleLoadMoreMessages = () => {
-    // KLUCZOWE: Jeśli nie ma więcej wiadomości lub właśnie trwa ładowanie, przerywamy funkcję
     if (!hasMore || isLoadingRef.current) return;
     
     isLoadingRef.current = true;
