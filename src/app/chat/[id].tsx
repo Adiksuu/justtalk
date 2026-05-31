@@ -9,9 +9,10 @@ import InputBar from '@/components/chat/InputBar';
 import MessageBubble from '@/components/chat/MessageBubble';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { Message } from '@/interfaces/Message';
-import { subscribeToMessages } from '@/functions/messages';
+import { sendScreenshotNotificationMessage, subscribeToMessages } from '@/functions/messages';
 import { setUserTyping, subscribeToTypingStatus } from '@/functions/activity';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as ScreenCapture from 'expo-screen-capture'
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -24,6 +25,10 @@ export default function ChatScreen() {
   const [spacerHeight, setSpacerHeight] = useState(0);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
   const [activeMenuMessageId, setActiveMenuMessageId] = useState<string | null>(null);
+
+  ScreenCapture.useScreenshotListener(async () => {
+    await sendScreenshotNotificationMessage(id || '');
+  })
 
   useEffect(() => {
     if (!id) return;

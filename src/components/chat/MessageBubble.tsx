@@ -9,6 +9,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { reactToMessage } from '@/functions/messages';
 import { View } from 'react-native'; 
 import ReactionMenu from './ReactionMenu';
+import SystemMessage from './messageTypes/SystemMessage';
 
 export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void }) {
   const { type } = message;
@@ -23,6 +24,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { m
     .numberOfTaps(2)
     .runOnJS(true)
     .onStart(async () => {
+      if (type === 'system' || type === 'typing') return;
       await reactToMessage(chatId || '', message.id, '❤️');
     });
 
@@ -30,6 +32,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { m
     .minDuration(500)
     .runOnJS(true)
     .onStart(() => {
+      if (type === 'system' || type === 'typing') return;
       onToggleMenu(!isMenuOpen);
     });
 
@@ -41,6 +44,8 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { m
         return <ImageMessage message={message} />;
       case 'typing':
         return <TypingMessage message={message} />;
+      case 'system':
+        return <SystemMessage message={{ ...message, text: decryptedText }} />;
       default:
         return <TextMessage message={{ ...message, text: decryptedText }} />;
     }

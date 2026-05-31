@@ -1,7 +1,7 @@
 {
   "name": "justtalk",
   "main": "expo-router/entry",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "author": "Adiksuu",
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -23,6 +23,7 @@
     "expo-local-authentication": "~17.0.8",
     "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.23",
+    "expo-screen-capture": "~8.0.9",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
     "expo-symbols": "~1.0.8",

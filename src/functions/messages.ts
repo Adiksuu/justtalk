@@ -29,6 +29,27 @@ export const sendMessage = async (message: string, chatId: string, friendUID: st
     await sendRemotePushNotification(friendUID, message, friend.fullName);
 }
 
+// Function to send message about screenshot
+export const sendScreenshotNotificationMessage = async (chatId: string) => {
+    const currentUser = auth().currentUser;
+    const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+    const messageId = Date.now().toString();
+
+    const fullName: string = (await getUserData(currentUser?.uid || '')).fullName;
+
+    const encryptedText = encryptMessage(`${fullName} took a screenshot.`, chatId);
+    
+    await update(ref(db, `chats/${chatId}/messages/`), {
+        [messageId]: {
+            id: messageId,
+            type: 'system',
+            text: encryptedText,
+            time: Date.now(),
+            uid: currentUser?.uid,
+        },
+    });
+}
+
 // Function to get latest message in chat
 export const getLatestMessage = async (chatId: string) => {
     try {

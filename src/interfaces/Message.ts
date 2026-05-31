@@ -11,4 +11,4 @@ export interface Message {
 }
 
 
-export type MessageType = 'text' | 'image' | 'typing';
+export type MessageType = 'text' | 'image' | 'typing' | 'system';
