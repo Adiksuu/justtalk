@@ -1,13 +1,25 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View, Platform } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View, Platform, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardStickyView, useKeyboardHandler } from 'react-native-keyboard-controller';
 import { runOnJS } from 'react-native-reanimated';
 import { sendMessage } from '@/functions/messages';
 import { setUserTyping } from '@/functions/activity';
+import { Message } from '@/interfaces/Message';
+import ReplyBox from './ReplyBox';
 
-export default function InputBar({ chatId, friendUID }: { chatId: string, friendUID: string }) {
+export default function InputBar({ 
+  chatId, 
+  friendUID, 
+  replyingTo, 
+  onCancelReply 
+}: { 
+  chatId: string, 
+  friendUID: string, 
+  replyingTo: Message | null, 
+  onCancelReply: () => void 
+}) {
   const [text, setText] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const insets = useSafeAreaInsets();
@@ -25,9 +37,10 @@ export default function InputBar({ chatId, friendUID }: { chatId: string, friend
 
   const handleSendMessage = () => {
     if (text.trim() !== '') {
-      sendMessage(text, chatId, friendUID);
-      setUserTyping(chatId, "")
+      sendMessage(text, chatId, friendUID, replyingTo || undefined);
+      setUserTyping(chatId, "");
       setText('');
+      onCancelReply();
     }
   }
 
@@ -44,40 +57,49 @@ export default function InputBar({ chatId, friendUID }: { chatId: string, friend
         { paddingBottom: getBottomPadding() }
       ]}
     >
-      <TouchableOpacity activeOpacity={0.7} style={inputStyles.iconBtn}>
-        <Ionicons name="attach-outline" size={22} color="#6B7280" style={{ transform: [{ rotate: '-45deg' }] }} />
-      </TouchableOpacity>
+      {replyingTo && (
+        <ReplyBox replyingTo={replyingTo} onCancelReply={onCancelReply} chatId={chatId || ''} />
+      )}
 
-      <View style={inputStyles.inputWrapper}>
-        <TextInput
-          placeholder="Message"
-          placeholderTextColor="#6B7280"
-          style={inputStyles.input}
-          value={text}
-          onChangeText={(value) => {
-            setText(value);
-            setUserTyping(chatId, value)
-          }}
-          onSubmitEditing={() => handleSendMessage()}
-        />
+      <View style={inputStyles.bottomRow}>
+        <TouchableOpacity activeOpacity={0.7} style={inputStyles.iconBtn}>
+          <Ionicons name="attach-outline" size={22} color="#6B7280" style={{ transform: [{ rotate: '-45deg' }] }} />
+        </TouchableOpacity>
+
+        <View style={inputStyles.inputWrapper}>
+          <TextInput
+            placeholder="Message"
+            placeholderTextColor="#6B7280"
+            style={inputStyles.input}
+            value={text}
+            onChangeText={(value) => {
+              setText(value);
+              setUserTyping(chatId, value)
+            }}
+            onSubmitEditing={() => handleSendMessage()}
+          />
+        </View>
+
+        <TouchableOpacity activeOpacity={0.7} style={inputStyles.iconBtn}>
+          <Ionicons name="camera-outline" size={22} color="#6B7280" />
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity activeOpacity={0.7} style={inputStyles.iconBtn}>
-        <Ionicons name="camera-outline" size={22} color="#6B7280" />
-      </TouchableOpacity>
     </KeyboardStickyView>
   );
 }
 
 const inputStyles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 10,
     paddingTop: 8,
     backgroundColor: '#16181D',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.06)',
+    width: '100%',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
     width: '100%',
   },

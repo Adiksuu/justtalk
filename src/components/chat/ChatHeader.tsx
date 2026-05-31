@@ -2,9 +2,10 @@ import { subscribeToUserActivity } from '@/functions/activity';
 import { timeAgo } from '@/functions/messages';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {  StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Avatar from './Avatar';
 
-export default function ChatHeader({ name, avatarUrl, onBack, friendUID }: { name: string; avatarUrl: string; onBack: () => void; friendUID: string }) {
+export default function ChatHeader({ name, onBack, friendUID }: { name: string; onBack: () => void; friendUID: string }) {
   const [activeStatus, setActiveStatus] = useState<{ state: string; lastSeen: number } | null>(null);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ console.log(activeStatus, friendUID )
       </TouchableOpacity>
 
       <View style={headerStyles.avatarWrapper}>
-        <Image source={{ uri: avatarUrl }} style={headerStyles.avatar} />
+        <Avatar fullName={name} />
         <View style={activeStatus?.state === 'online' ? headerStyles.onlineDot : headerStyles.offlineDot} />
       </View>
 
@@ -68,16 +69,9 @@ const headerStyles = StyleSheet.create({
     marginRight: 4,
   },
   avatarWrapper: {
-    width: 38,
-    height: 38,
     borderRadius: 19,
     overflow: 'visible',
     marginRight: 10,
-  },
-  avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
   },
   onlineDot: {
     position: 'absolute',

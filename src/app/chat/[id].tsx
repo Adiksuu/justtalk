@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Platform, View } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList } from '@shopify/flash-list'; // Upewnij się, że import jest poprawny
 
 import InputBar from '@/components/chat/InputBar';
 import MessageBubble from '@/components/chat/MessageBubble';
@@ -12,7 +12,8 @@ import { Message } from '@/interfaces/Message';
 import { sendScreenshotNotificationMessage, subscribeToMessages } from '@/functions/messages';
 import { setUserTyping, subscribeToTypingStatus } from '@/functions/activity';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import * as ScreenCapture from 'expo-screen-capture'
+import * as ScreenCapture from 'expo-screen-capture';
+import ChatEmptyState from '@/components/chat/ChatEmptyState';
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -20,27 +21,46 @@ export default function ChatScreen() {
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [limit, setLimit] = useState(10);
+  
+  // Flagi blokujące zapętlanie
+  const [hasMore, setHasMore] = useState(true);
+  const isLoadingRef = useRef(false);
 
   const [containerHeight, setContainerHeight] = useState(0);
   const [spacerHeight, setSpacerHeight] = useState(0);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
   const [activeMenuMessageId, setActiveMenuMessageId] = useState<string | null>(null);
+  const [replyingToMessage, setReplyingToMessage] = useState<Message | null>(null);
 
   ScreenCapture.useScreenshotListener(async () => {
     await sendScreenshotNotificationMessage(id || '');
-  })
+  });
 
   useEffect(() => {
     if (!id) return;
 
+    isLoadingRef.current = true;
     const unsubscribe = subscribeToMessages(id, limit, (data: Message[]) => {
+      // Jeśli baza zwróciła mniej wiadomości niż wynosi obecny limit,
+      // oznacza to, że dotarliśmy do początku historii czatu.
+      if (data.length < limit) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+      
       setMessages(data);
+      isLoadingRef.current = false;
     });
 
     return () => unsubscribe();
   }, [id, limit]);
 
   const handleLoadMoreMessages = () => {
+    // KLUCZOWE: Jeśli nie ma więcej wiadomości lub właśnie trwa ładowanie, przerywamy funkcję
+    if (!hasMore || isLoadingRef.current) return;
+    
+    isLoadingRef.current = true;
     setLimit((prevLimit) => prevLimit + 10);
   };
 
@@ -72,17 +92,22 @@ export default function ChatScreen() {
         <SafeAreaView edges={['top']} style={{ backgroundColor: '#16181D' }}>
           <ChatHeader
             name={name || 'Chat'}
-            avatarUrl={avatar || 'https://i.pravatar.cc/150?img=33'}
             onBack={() => router.back()}
             friendUID={friendUID}
           />
         </SafeAreaView>
+        
         <View style={styles.listContainer} onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}>
           <FlashList 
             data={messages}
             renderItem={({ item }) => (
                 <View style={styles.invertedItem}>
-                  <MessageBubble message={item} isMenuOpen={activeMenuMessageId === item.id} onToggleMenu={(open: boolean) => setActiveMenuMessageId(open ? item.id : null)} />
+                  <MessageBubble 
+                    message={item} 
+                    isMenuOpen={activeMenuMessageId === item.id} 
+                    onToggleMenu={(open: boolean) => setActiveMenuMessageId(open ? item.id : null)} 
+                    setReplyingToMessage={setReplyingToMessage} 
+                  />
                 </View>
             )}
             keyExtractor={(item) => item.id}
@@ -90,6 +115,9 @@ export default function ChatScreen() {
             style={{ transform: [{ scaleY: -1 }] }}
             onEndReached={handleLoadMoreMessages}
             onEndReachedThreshold={0.2}
+            ListEmptyComponent={
+              <ChatEmptyState name={name || 'User'} />
+            }
             ListHeaderComponent={<View style={{ height: spacerHeight }} />}
             onContentSizeChange={(w, h) => {
               const pureContentHeight = h - spacerHeight;
@@ -102,10 +130,12 @@ export default function ChatScreen() {
             }}
           />
           {isFriendTyping ? (
-            <MessageBubble message={{ type: 'typing', text: `${name} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} />
+            <View style={{ transform: [{ scaleY: -1 }], paddingBottom: 8 }}>
+              <MessageBubble message={{ type: 'typing', text: `${name} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} setReplyingToMessage={setReplyingToMessage} />
+            </View>
           ) : null}
         </View>
-        <InputBar chatId={id || ''} friendUID={friendUID || ''} />
+        <InputBar chatId={id || ''} friendUID={friendUID || ''} replyingTo={replyingToMessage} onCancelReply={() => setReplyingToMessage(null)} />
       </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
@@ -125,16 +155,5 @@ const styles = StyleSheet.create({
   },
   invertedItem: {
     paddingVertical: 4,
-  },
-  typingIndicator: {
-    width: 60,
-    height: 24,
-    backgroundColor: '#272932',
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 6,
-    marginHorizontal: 10,
   },
 });

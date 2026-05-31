@@ -8,6 +8,7 @@ export interface Message {
   isSent?: boolean;
   isRead?: boolean;
   reactions?: { [key: string]: string };
+  replyingTo?: Message;
 }
 
 

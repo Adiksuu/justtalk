@@ -5,10 +5,10 @@ import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query
 import { decryptMessage, encryptMessage } from "./crypto";
 import { getChatID, getUserData } from "./friends";
 import { sendRemotePushNotification } from "./notifications";
-import { heavyHaptic } from "./preferences";
+import { heavyHaptic, lightHaptic } from "./preferences";
 
 // Function to send messages
-export const sendMessage = async (message: string, chatId: string, friendUID: string) => {
+export const sendMessage = async (message: string, chatId: string, friendUID: string, replyTo?: Message) => {
     const currentUser = auth().currentUser;
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const messageId = Date.now().toString();
@@ -22,9 +22,11 @@ export const sendMessage = async (message: string, chatId: string, friendUID: st
             text: encryptedText,
             time: Date.now(),
             uid: currentUser?.uid,
+            replyingTo: replyTo ? { ...replyTo, text: encryptedText, replyingTo: null } : null,
         },
     });
 
+    await lightHaptic();
     const friend = await getUserData(friendUID);
     await sendRemotePushNotification(friendUID, message, friend.fullName);
 }

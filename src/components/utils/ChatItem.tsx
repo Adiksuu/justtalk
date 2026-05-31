@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { getInitials } from '@/functions/profile';
+import Avatar from '../chat/Avatar';
 
 interface ChatItemProps {
   name: string;
@@ -21,11 +22,7 @@ export default function ChatItem({
 }: ChatItemProps) {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={onPress}>
-      <View style={styles.avatarWrapper}>
-        <Text style={styles.resultAvatarText}>
-          {getInitials(name)}
-        </Text>
-      </View>
+      <Avatar fullName={name} size={54} fontSize={15} />
       <View style={styles.content}>
         <View style={styles.topRow}>
           <View style={styles.nameRow}>
@@ -66,19 +63,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
     gap: 14,
-  },
-  avatarWrapper: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#2D2F38',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  resultAvatarText: {
-    color: '#F9FAFB',
-    fontSize: 15,
-    fontWeight: '700',
   },
   content: {
     flex: 1,
