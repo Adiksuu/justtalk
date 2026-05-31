@@ -11,32 +11,41 @@ const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 export default function TextMessage({ message }: { message: Message }) {
   const { text, time, isSent, isRead, reactions } = message;
 
-  // POPRAWIONA FUNKCJA RENDEROWANIA REAKCJI
   const renderReactions = () => {
-    // Sprawdzamy, czy reactions istnieje i czy ma jakiekolwiek klucze (np. userId)
     if (!reactions || Object.keys(reactions).length === 0) return null;
 
-    // 1. Pobieramy same emoji z obiektu (ignorujemy ID użytkowników)
     const allEmojis = Object.values(reactions) as string[];
 
-    // 2. Opcjonalnie: Usuwamy duplikaty emoji, żeby wyświetlić unikalne ikony (np. jedno '❤️', nawet gdy dało je 5 osób)
-    const uniqueEmojis = Array.from(new Set(allEmojis));
+    const emojiCounts = allEmojis.reduce((acc, emoji) => {
+      acc[emoji] = (acc[emoji] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const uniqueEmojis = Object.keys(emojiCounts);
 
     return (
       <View style={[
         styles.reactionsContainer, 
         isSent ? styles.reactionsSent : styles.reactionsReceived
       ]}>
-        {uniqueEmojis.map((emoji, index) => (
-          <Text key={index} style={styles.reactionEmoji}>
-            {emoji}
-          </Text>
-        ))}
+        {uniqueEmojis.map((emoji, index) => {
+          const count = emojiCounts[emoji];
+          
+          return (
+            <View key={index} style={styles.reactionBadge}>
+              {count > 1 && (
+                <Text style={styles.reactionCountText}>{count}</Text>
+              )}
+              <Text style={styles.reactionEmoji}>
+                {emoji}
+              </Text>
+            </View>
+          );
+        })}
       </View>
     );
   };
 
-  // Reszta kodu pozostaje bez zmian, ale dodaję dla kompletności:
   const hasReactions = reactions && Object.keys(reactions).length > 0;
 
   return (
@@ -90,7 +99,7 @@ const styles = StyleSheet.create({
     maxWidth: MAX_BUBBLE_WIDTH,
   },
   containerWithReactions: {
-    marginBottom: 10, // Wolna przestrzeń na dole dymka na nakładające się emoji
+    marginBottom: 10,
   },
   bubble: {
     paddingVertical: 8,
@@ -134,7 +143,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#0F1015', // Dostosuj do koloru tła Twojego ekranu czatu!
+    borderColor: '#0F1015',
     gap: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -147,6 +156,16 @@ const styles = StyleSheet.create({
   },
   reactionsReceived: {
     right: 10,
+  },
+  reactionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  reactionCountText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
   },
   reactionEmoji: {
     fontSize: 12,
