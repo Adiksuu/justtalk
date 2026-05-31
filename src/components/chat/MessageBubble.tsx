@@ -10,6 +10,7 @@ import { reactToMessage } from '@/functions/messages';
 import { View } from 'react-native'; 
 import ReactionMenu from './ReactionMenu';
 import SystemMessage from './messageTypes/SystemMessage';
+import { lightHaptic } from '@/functions/preferences';
 
 export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void }) {
   const { type } = message;
@@ -25,6 +26,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { m
     .runOnJS(true)
     .onStart(async () => {
       if (type === 'system' || type === 'typing') return;
+      lightHaptic()
       await reactToMessage(chatId || '', message.id, '❤️');
     });
 
@@ -33,6 +35,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { m
     .runOnJS(true)
     .onStart(() => {
       if (type === 'system' || type === 'typing') return;
+      lightHaptic()
       onToggleMenu(!isMenuOpen);
     });
 
