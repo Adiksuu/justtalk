@@ -11,6 +11,7 @@ import ChatHeader from '@/components/chat/ChatHeader';
 import { Message } from '@/interfaces/Message';
 import { subscribeToMessages } from '@/functions/messages';
 import { setUserTyping, subscribeToTypingStatus } from '@/functions/activity';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function ChatScreen() {
   const [containerHeight, setContainerHeight] = useState(0);
   const [spacerHeight, setSpacerHeight] = useState(0);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
+  const [activeMenuMessageId, setActiveMenuMessageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -54,7 +56,7 @@ export default function ChatScreen() {
   }, [id, friendUID]);
 
   return (
-    <View style={styles.outerContainer}>
+    <GestureHandlerRootView style={styles.outerContainer}>
       <Stack.Screen options={{ headerShown: false }} />
 
       <KeyboardAvoidingView
@@ -74,9 +76,9 @@ export default function ChatScreen() {
           <FlashList 
             data={messages}
             renderItem={({ item }) => (
-              <View style={styles.invertedItem}>
-                <MessageBubble message={item} />
-              </View>
+                <View style={styles.invertedItem}>
+                  <MessageBubble message={item} isMenuOpen={activeMenuMessageId === item.id} onToggleMenu={(open: boolean) => setActiveMenuMessageId(open ? item.id : null)} />
+                </View>
             )}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
@@ -95,12 +97,12 @@ export default function ChatScreen() {
             }}
           />
           {isFriendTyping ? (
-            <MessageBubble message={{ type: 'typing', text: `${name} is typing...`, uid: '', id: 'typing', time: '',  }} />
+            <MessageBubble message={{ type: 'typing', text: `${name} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} />
           ) : null}
         </View>
         <InputBar chatId={id || ''} friendUID={friendUID || ''} />
       </KeyboardAvoidingView>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 

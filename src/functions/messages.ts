@@ -175,3 +175,26 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
         console.error("Error listening to chat messages:", error);
     });
 };
+
+// Function to add reaction to message with emoji (toggle for add/remove)
+export const reactToMessage = async (chatId: string, messageId: string, emoji: string) => {
+    try {
+        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const messageRef = ref(db, `chats/${chatId}/messages/${messageId}/reactions/`);
+        
+        const snapshot = await get(messageRef);
+        const reactions = snapshot.exists() ? snapshot.val() : {};
+        const currentUser: any = auth().currentUser?.uid;
+        if (reactions[currentUser] === emoji) {
+            await update(messageRef, {
+                [currentUser]: null
+            });
+        } else {
+            await update(messageRef, {
+                [currentUser]: emoji
+            });
+        }
+    } catch (error) {
+        console.error("Error reacting to message:", error);
+    }
+}

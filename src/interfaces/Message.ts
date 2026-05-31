@@ -7,7 +7,7 @@ export interface Message {
   time: string;
   isSent?: boolean;
   isRead?: boolean;
-  reaction?: string;
+  reactions?: { [key: string]: string };
 }
 
 

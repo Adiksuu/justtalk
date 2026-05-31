@@ -1,12 +1,16 @@
-import React, { useMemo } from 'react'
-import { Message } from '@/interfaces/Message'
+import React, { useMemo, useState } from 'react'; // Dodano useState
+import { Message } from '@/interfaces/Message';
 import ImageMessage from './messageTypes/ImageMessage';
 import TextMessage from './messageTypes/TextMessage';
 import { useLocalSearchParams } from 'expo-router';
 import { decryptMessage } from '@/functions/crypto';
 import TypingMessage from './messageTypes/TypingMessage';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { reactToMessage } from '@/functions/messages';
+import { View } from 'react-native'; 
+import ReactionMenu from './ReactionMenu';
 
-export default function MessageBubble({message}: {message: Message}) {
+export default function MessageBubble({ message, isMenuOpen, onToggleMenu }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void }) {
   const { type } = message;
   const { id: chatId } = useLocalSearchParams<{ id: string }>();
 
@@ -15,12 +19,47 @@ export default function MessageBubble({message}: {message: Message}) {
     return decryptMessage(message.text || '', chatId);
   }, [message.text, chatId]);
 
-  switch (type) {
-    case 'image':
-      return <ImageMessage message={message} />
-    case 'typing':
-      return <TypingMessage message={message} />
-    default:
-      return <TextMessage message={{...message, text: decryptedText}} />
+  const doubleTap = Gesture.Tap()
+    .numberOfTaps(2)
+    .runOnJS(true)
+    .onStart(async () => {
+      await reactToMessage(chatId || '', message.id, '❤️');
+    });
+
+  const longPress = Gesture.LongPress()
+    .minDuration(500)
+    .runOnJS(true)
+    .onStart(() => {
+      onToggleMenu(!isMenuOpen);
+    });
+
+  const combinedGestures = Gesture.Race(doubleTap, longPress);
+
+  const renderMessageContent = () => {
+    switch (type) {
+      case 'image':
+        return <ImageMessage message={message} />;
+      case 'typing':
+        return <TypingMessage message={message} />;
+      default:
+        return <TextMessage message={{ ...message, text: decryptedText }} />;
+    }
+  };
+
+  if (type === 'typing') {
+    return renderMessageContent();
   }
+
+  return (
+    <View style={{ position: 'relative' }}>
+      <GestureDetector gesture={combinedGestures}>
+        <View>
+          {renderMessageContent()}
+        </View>
+      </GestureDetector>
+      {isMenuOpen && (
+        <ReactionMenu message={message} chatId={chatId} setShowMenu={onToggleMenu} />
+      )}
+    </View>
+  );
 }
