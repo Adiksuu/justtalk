@@ -5,4 +5,5 @@ export interface UserProfileData {
   emailVerified: boolean;
   phoneNumber: string;
   createdAt?: string;
+  avatar: string | null;
 }

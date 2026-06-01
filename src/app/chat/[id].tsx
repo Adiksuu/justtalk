@@ -181,7 +181,7 @@ export default function ChatScreen() {
             onEndReached={handleLoadMoreMessages}
             onEndReachedThreshold={0.2}
             ListEmptyComponent={
-              <ChatEmptyState name={chatName || 'User'} />
+              <ChatEmptyState name={chatName || 'User'} friendUID={friendUID || ''} />
             }
             ListHeaderComponent={<View style={{ height: spacerHeight }} />}
             onContentSizeChange={(w, h) => {

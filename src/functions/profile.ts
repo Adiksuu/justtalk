@@ -50,6 +50,7 @@ export const fetchUserProfile = (router: any, setProfile: React.Dispatch<React.S
       email: user.email || 'No email provided',
       emailVerified: user.emailVerified || false,
       phoneNumber: user.phoneNumber || 'No phone linked',
+      avatar: null,
     });
 
     try {
@@ -67,6 +68,7 @@ export const fetchUserProfile = (router: any, setProfile: React.Dispatch<React.S
                 emailVerified: user.emailVerified || false,
                 phoneNumber: data.phoneNumber || user.phoneNumber || 'No phone linked',
                 createdAt: data.createdAt,
+                avatar: data.avatar || null,
             });
             }
             setLoading(false);

@@ -22,8 +22,6 @@ export default function ChatHeader({ name, onBack, friendUID, onShowInfo }: { na
     };
   }, [friendUID]);
 
-console.log(activeStatus, friendUID )
-
   return (
     <View style={headerStyles.container}>
       <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={headerStyles.backBtn}>
@@ -31,7 +29,7 @@ console.log(activeStatus, friendUID )
       </TouchableOpacity>
 
       <View style={headerStyles.avatarWrapper}>
-        <Avatar fullName={name} />
+        <Avatar fullName={name} friendUID={friendUID} />
         <View style={activeStatus?.state === 'online' ? headerStyles.onlineDot : headerStyles.offlineDot} />
       </View>
 

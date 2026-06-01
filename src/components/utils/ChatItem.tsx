@@ -9,6 +9,7 @@ interface ChatItemProps {
   unreadCount?: number;
   senderName?: string;
   onPress?: () => void;
+  friendUID?: string;
 }
 
 export default function ChatItem({
@@ -18,10 +19,11 @@ export default function ChatItem({
   unreadCount,
   senderName,
   onPress,
+  friendUID,
 }: ChatItemProps) {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={onPress}>
-      <Avatar fullName={name} size={54} fontSize={15} />
+      <Avatar fullName={name} size={54} fontSize={15} friendUID={friendUID} />
       <View style={styles.content}>
         <View style={styles.topRow}>
           <View style={styles.nameRow}>

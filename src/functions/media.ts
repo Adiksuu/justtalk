@@ -1,19 +1,26 @@
 import { SharedMediaItem } from '@/interfaces/SharedMediaItem';
 import { getApp } from '@react-native-firebase/app';
-import { getDatabase, onValue, ref } from '@react-native-firebase/database';
+import { getDatabase, onValue, ref, update } from '@react-native-firebase/database';
 import * as ImagePicker from 'expo-image-picker';
 import { decryptMessage } from './crypto';
+import auth from "@react-native-firebase/auth";
 
 const CLOUD_NAME = "dd3ppv7km"
 const UPLOAD_PRESET = "justtalk_app"
 
-export const pickAndUploadMedia = async (setUploading: any) => {
+export const pickAndUploadMedia = async (setUploading: any, acceptOnly: string = 'all') => {
+    const mediaTypes: ImagePicker.MediaTypeOptions = acceptOnly === 'image' 
+        ? ImagePicker.MediaTypeOptions.Images 
+        : acceptOnly === 'video' 
+            ? ImagePicker.MediaTypeOptions.Videos 
+            : ImagePicker.MediaTypeOptions.All;
+
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
     if (permissionResult.granted === false) return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        mediaTypes: mediaTypes,
         allowsEditing: true,
         quality: 0.8,
         videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium
@@ -139,4 +146,20 @@ export const subscribeToChatMedia = (chatId: string, setSharedMedia: any, setLoa
     });
     
     return () => unsubscribe();
+}
+
+// Function to update user profile picture
+export const updateUserProfilePicture = async (avatarUrl: string) => {
+    const user: any = auth().currentUser;
+
+    if (!user || !avatarUrl) return;
+
+    const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+    const usersRef = ref(db, `users/${user.uid}`);
+
+    update(usersRef, {
+        avatar: avatarUrl,
+    }).catch((error: string) => {
+        console.error("Error updating user profile picture:", error);
+    });
 }

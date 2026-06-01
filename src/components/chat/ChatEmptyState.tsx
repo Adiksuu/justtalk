@@ -5,13 +5,14 @@ import Avatar from './Avatar';
 
 interface ChatEmptyStateProps {
   name: string;
+  friendUID?: string;
 }
 
-export default function ChatEmptyState({ name }: ChatEmptyStateProps) {
+export default function ChatEmptyState({ name, friendUID = '' }: ChatEmptyStateProps) {
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
-        <Avatar fullName={name} size={90} fontSize={24} />
+        <Avatar fullName={name} size={90} fontSize={24} friendUID={friendUID} />
         <View style={styles.iconBadge}>
           <Ionicons name="chatbubbles" size={16} color="#FFFFFF" />
         </View>

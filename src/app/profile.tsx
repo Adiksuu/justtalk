@@ -33,6 +33,7 @@ export default function ProfileScreen() {
     email: '',
     emailVerified: false,
     phoneNumber: '',
+    avatar: null,
   });
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);

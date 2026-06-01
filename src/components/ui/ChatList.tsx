@@ -156,6 +156,7 @@ function LiveChatItem({ friend, router, chatState }: { friend: any; router: any;
                     });
                 }
             }}
+            friendUID={friend.uid}
         />
     );
 }

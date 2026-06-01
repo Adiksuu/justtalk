@@ -7,7 +7,7 @@ export default function SearchResult({ uid, data, isSent, handleAddFriend }: { u
   return (
     <View style={styles.resultItem}>
         <View style={styles.resultAvatar}>
-          <Avatar fullName={data.fullName || ''} />
+          <Avatar fullName={data.fullName || ''} friendUID={uid} />
         </View>
         <View style={styles.resultInfo}>
           <Text style={styles.resultUsername} numberOfLines={1}>

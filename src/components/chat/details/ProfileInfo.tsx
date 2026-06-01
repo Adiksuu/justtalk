@@ -29,7 +29,7 @@ export default function ProfileInfo({ name, activeStatus, friendId, chatId }: { 
   return (
     <View style={styles.profileSection}>
       <View style={styles.avatarContainer}>
-        <Avatar fullName={name} size={92} fontSize={32} />
+        <Avatar fullName={name} size={92} fontSize={32} friendUID={friendId} />
         <View style={activeStatus?.state === 'online' ? styles.onlineBadge : styles.offlineBadge} />
       </View>
       {isEditing ? (

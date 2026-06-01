@@ -1,26 +1,38 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
-import React from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Image } from 'react-native'
+import React, { useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Ionicons } from '@expo/vector-icons'
+import { pickAndUploadMedia, updateUserProfilePicture } from '@/functions/media';
 
 export default function Avatar({profile, getInitials}: {profile: any, getInitials: (name: string) => string}) {
+    const [isUploading, setIsUploading] = useState(false)
+    const handleChangeAvatar = async () => {
+        const result = await pickAndUploadMedia(setIsUploading, 'image');
+
+        if (result?.url && result?.type === 'image') {
+            await updateUserProfilePicture(result.url)
+            profile.avatar = result.url
+        }
+    }
+
   return (
     <View style={styles.heroSection}>
         <TouchableOpacity
             activeOpacity={0.9} 
             style={styles.avatarWrapper}
-            onPress={() => Alert.alert('Avatar upload features are coming soon!')}
+            onPress={() => handleChangeAvatar()}
         >
-            <LinearGradient
-            colors={['#6366F1', '#8B5CF6']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.avatarGradient}
-            >
-            <Text style={styles.avatarText}>{getInitials(profile.fullName)}</Text>
-            </LinearGradient>
+            {profile.avatar ? <Image source={{ uri: profile.avatar }} style={styles.avatarImage} /> : (
+                <LinearGradient colors={['#6366F1', '#8B5CF6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.avatarGradient}>
+                    <Text style={styles.avatarText}>{getInitials(profile.fullName)}</Text>
+                </LinearGradient>
+            )}
             <View style={styles.cameraIconContainer}>
-            <Ionicons name="camera" size={16} color="#FFFFFF" />
+                {isUploading ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                    <Ionicons name="camera" size={16} color="#FFFFFF" />
+                )}
             </View>
         </TouchableOpacity>
 
@@ -42,11 +54,6 @@ const styles = StyleSheet.create({
         borderRadius: 48,
         position: 'relative',
         marginBottom: 16,
-        shadowColor: '#6366F1',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
-        elevation: 8,
     },
     avatarGradient: {
         width: '100%',
@@ -87,4 +94,9 @@ const styles = StyleSheet.create({
         color: '#9CA3AF',
         fontWeight: '400',
     },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 48,
+    }
 })
