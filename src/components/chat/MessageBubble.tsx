@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import { Message } from '@/interfaces/Message';
 import ImageMessage from './messageTypes/ImageMessage';
 import TextMessage from './messageTypes/TextMessage';
+import LinkPreviewMessage from './messageTypes/LinkPreviewMessage';
 import { useLocalSearchParams } from 'expo-router';
 import { decryptMessage } from '@/functions/crypto';
 import TypingMessage from './messageTypes/TypingMessage';
@@ -80,6 +81,10 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
       case 'system':
         return <SystemMessage message={{ ...message, text: decryptedText }} />;
       default:
+        const hasUrl = decryptedText && /https?:\/\/[^\s]+/i.test(decryptedText);
+        if (hasUrl) {
+          return <LinkPreviewMessage message={{ ...message, text: decryptedText }} />;
+        }
         return <TextMessage message={{ ...message, text: decryptedText}} />;
     }
   };
