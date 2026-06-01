@@ -124,16 +124,17 @@ function LiveChatItem({ friend, router, chatState }: { friend: any; router: any;
         return {
             text: chatState.lastMessage.type === 'text' ? chatState.lastMessage.text : "Sent an attachment",
             time: formatTime(chatState.lastMessage.time),
-            sender: chatState.lastMessage.uid === auth().currentUser?.uid ? 'You' : friend.fullName
+            sender: chatState.lastMessage.uid === auth().currentUser?.uid ? 'You' : friend.fullName,
+            unreadCount: chatState.unreadCount || 0
         };
-    }, [chatState.lastMessage, chatState.loading, friend.fullName]);
+    }, [chatState.lastMessage, chatState.loading, chatState.unreadCount, friend.fullName]);
 
     return (
         <ChatItem
             name={friend.fullName}
             lastMessage={displayDetails.text}
             time={displayDetails.time}
-            unreadCount={friend.unreadCount}
+            unreadCount={displayDetails.unreadCount}
             senderName={displayDetails.sender}
             onPress={() => {
                 if (chatState.chatID) {

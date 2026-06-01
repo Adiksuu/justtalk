@@ -1,11 +1,12 @@
 import { Message } from "@/interfaces/Message";
 import { getApp } from "@react-native-firebase/app";
 import auth from "@react-native-firebase/auth";
-import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query, ref, update } from "@react-native-firebase/database";
+import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query, ref, serverTimestamp, update } from "@react-native-firebase/database";
 import { decryptMessage, encryptMessage } from "./crypto";
 import { getChatID, getUserData } from "./friends";
 import { sendRemotePushNotification } from "./notifications";
 import { heavyHaptic, lightHaptic } from "./preferences";
+import { getUnreadMessagesCount } from "./activity";
 
 // Function to send messages
 export const sendMessage = async (message: string, chatId: string, friendUID: string, replyTo?: Message, type: string = "text", media?: string) => {
@@ -20,7 +21,7 @@ export const sendMessage = async (message: string, chatId: string, friendUID: st
             id: messageId,
             type: type,
             text: encryptedText,
-            time: Date.now(),
+            time: serverTimestamp(),
             uid: currentUser?.uid,
             replyingTo: replyTo ? { ...replyTo, text: encryptedText, replyingTo: null } : null,
             media: media ? encryptMessage(media, chatId) : null,
@@ -47,7 +48,7 @@ export const sendScreenshotNotificationMessage = async (chatId: string) => {
             id: messageId,
             type: 'system',
             text: encryptedText,
-            time: Date.now(),
+            time: serverTimestamp(),
             uid: currentUser?.uid,
         },
     });
@@ -184,12 +185,17 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
     let isFirstLoad = true;
     const currentUserId = auth().currentUser?.uid;
 
-    unsubscribeChat = onValue(chatRef, async () => {
+    let cachedLatest: any = null;
+
+    const unsubscribeMessages = onValue(chatRef, async () => {
         const latest = await getLatestMessage(id);
+        cachedLatest = latest;
+        const unreadCount = await getUnreadMessagesCount(id, currentUserId || '');
         setChatState({
             chatID: id,
             lastMessage: latest,
-            loading: false
+            loading: false,
+            unreadCount,
         });
 
         if (!isFirstLoad && latest && latest.uid !== currentUserId) heavyHaptic();
@@ -197,6 +203,21 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
         isFirstLoad = false;
     }, (error) => {
         console.error("Error listening to chat messages:", error);
+    });
+
+    const readRef = ref(db, `chats/${id}/read/${currentUserId}`);
+    const unsubscribeRead = onValue(readRef, async () => {
+        if (!cachedLatest) return;
+        const unreadCount = await getUnreadMessagesCount(id, currentUserId || '');
+        setChatState((prev: any) => ({
+            ...prev,
+            unreadCount,
+        }));
+    });
+
+    unsubscribeChat(() => {
+        unsubscribeMessages();
+        unsubscribeRead();
     });
 };
 

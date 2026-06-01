@@ -10,14 +10,14 @@ import MessageBubble from '@/components/chat/MessageBubble';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { Message } from '@/interfaces/Message';
 import { sendScreenshotNotificationMessage, subscribeToMessages } from '@/functions/messages';
-import { setUserTyping, subscribeToTypingStatus } from '@/functions/activity';
+import { setUserReadMessages, setUserTyping, subscribeToTypingStatus, subscribeToUserReadTime } from '@/functions/activity';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as ScreenCapture from 'expo-screen-capture';
 import ChatEmptyState from '@/components/chat/ChatEmptyState';
 
 export default function ChatScreen() {
   const router = useRouter();
-  const { id, name, avatar, friendUID } = useLocalSearchParams<{ id: string; name: string; avatar: string; friendUID: string }>();
+  const { id, name, friendUID } = useLocalSearchParams<{ id: string; name: string; avatar: string; friendUID: string }>();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [limit, setLimit] = useState(10);
@@ -28,6 +28,7 @@ export default function ChatScreen() {
   const [containerHeight, setContainerHeight] = useState(0);
   const [spacerHeight, setSpacerHeight] = useState(0);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
+  const [friendReadTime, setFriendReadTime] = useState<number | null>(null);
   const [activeMenuMessageId, setActiveMenuMessageId] = useState<string | null>(null);
   const [replyingToMessage, setReplyingToMessage] = useState<Message | null>(null);
 
@@ -67,14 +68,39 @@ export default function ChatScreen() {
   }, [id]);
 
   useEffect(() => {
+    if (id && messages.length > 0) {
+      setUserReadMessages(id);
+    }
+  }, [id, messages]);
+
+  useEffect(() => {
     if (!friendUID) return;
 
-    const unsubscribe = subscribeToTypingStatus(id || '', friendUID || '', (data: boolean) => {
+    const unsubscribeTyping = subscribeToTypingStatus(id || '', friendUID || '', (data: boolean) => {
       setIsFriendTyping(data);
     });
 
-    return () => unsubscribe();
+    const unsubscribeRead = subscribeToUserReadTime(id || '', friendUID, (time) => {
+      setFriendReadTime(time);
+    });
+
+    return () => {
+      unsubscribeTyping();
+      unsubscribeRead();
+    };
   }, [id, friendUID]);
+
+  const processedMessages = React.useMemo(() => {
+    return messages.map((msg) => {
+      if (msg.isSent && friendReadTime && msg.time) {
+        const msgTime = new Date(msg.time).getTime();
+        if (!isNaN(msgTime) && msgTime <= friendReadTime) {
+          return { ...msg, isRead: true };
+        }
+      }
+      return msg;
+    });
+  }, [messages, friendReadTime]);
 
   return (
     <GestureHandlerRootView style={styles.outerContainer}>
@@ -95,7 +121,7 @@ export default function ChatScreen() {
         
         <View style={styles.listContainer} onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}>
           <FlashList 
-            data={messages}
+            data={processedMessages}
             renderItem={({ item }) => (
                 <View style={styles.invertedItem}>
                   <MessageBubble 

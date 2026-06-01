@@ -9,12 +9,10 @@ const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 export default function TypingMessage({message}: {message: Message}) {
     const { text } = message;
 
-    // 1. Inicjalizacja wartości animacji
-    const fadeAnim = useRef(new Animated.Value(0)).current;      // Przezroczystość od 0 do 1
-    const translateYAnim = useRef(new Animated.Value(15)).current; // Przesunięcie z dołu o 15px
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateYAnim = useRef(new Animated.Value(15)).current;
 
     useEffect(() => {
-        // 2. Odpalenie animacji przy montowaniu komponentu
         Animated.parallel([
             Animated.timing(fadeAnim, {
                 toValue: 1,
@@ -23,15 +21,14 @@ export default function TypingMessage({message}: {message: Message}) {
             }),
             Animated.spring(translateYAnim, {
                 toValue: 0,
-                friction: 7,    // Odpowiada za opór (mniejsza wartość = większa elastyczność)
-                tension: 40,    // Odpowiada za prędkość początkową
+                friction: 7,
+                tension: 40,
                 useNativeDriver: true,
             }),
         ]).start();
     }, []);
 
     return (
-        // 3. Zamiana zwykłego View na Animated.View i przekazanie stylów animacji
         <Animated.View 
             style={[
                 bubbleStyles.row, 
@@ -39,6 +36,7 @@ export default function TypingMessage({message}: {message: Message}) {
                     opacity: fadeAnim,
                     transform: [
                         { translateY: translateYAnim },
+                        { scaleY: -1 }
                     ]
                 }
             ]}
@@ -69,7 +67,6 @@ const bubbleStyles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 18,
-    // Dodano delikatny transform-origin dla ładniejszego efektu "wyskakiwania"
     borderBottomLeftRadius: 4, 
   },
   bubbleReceived: {

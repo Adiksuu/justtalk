@@ -1,6 +1,7 @@
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import database from '@react-native-firebase/database';
+import { getUnreadMessagesCount } from './activity';
 
 export async function registerForPushNotificationsAsync(userId: string) {
   if (!Device.isDevice) {

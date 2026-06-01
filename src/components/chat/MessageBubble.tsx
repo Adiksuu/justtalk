@@ -80,7 +80,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
       case 'system':
         return <SystemMessage message={{ ...message, text: decryptedText }} />;
       default:
-        return <TextMessage message={{ ...message, text: decryptedText }} />;
+        return <TextMessage message={{ ...message, text: decryptedText}} />;
     }
   };
 
