@@ -7,6 +7,7 @@ import SearchResult from './friends/SearchResult';
 
 import auth from "@react-native-firebase/auth";
 import { formatTime, initChatListener } from '@/functions/messages';
+import NoFriends from './friends/NoFriends';
 
 interface ChatListProps {
     filter: string;
@@ -20,10 +21,11 @@ export default function ChatList({ filter }: ChatListProps) {
     const [friends, setFriends] = useState<any[]>([]);
     const [chatsState, setChatsState] = useState<Record<string, { chatID: string | null; lastMessage: any; loading: boolean }>>({});
 
+    
     useEffect(() => {
         const currentUser = auth().currentUser;
         if (!currentUser) return;
-
+        
         const unsubscribe = subscribeToRequests({
             filter,
             currentUserId: currentUser.uid,
@@ -43,9 +45,9 @@ export default function ChatList({ filter }: ChatListProps) {
 
     useEffect(() => {
         if (filter !== 'Friends' || friends.length === 0) return;
-
+        
         const unsubscribes: (() => void)[] = [];
-
+        
         friends.forEach((friend) => {
             initChatListener(
                 friend.uid, 
@@ -55,14 +57,14 @@ export default function ChatList({ filter }: ChatListProps) {
                         [friend.uid]: typeof updatedChatState === 'function' 
                             ? updatedChatState(prevState[friend.uid] || { chatID: null, lastMessage: null, loading: true })
                             : updatedChatState
-                    }));
-                }, 
+                        }));
+                    }, 
                 (unsubscribe: any) => {
                     unsubscribes.push(unsubscribe);
                 }
             );
         });
-
+        
         return () => {
             unsubscribes.forEach((unsub) => unsub());
         };
@@ -70,7 +72,7 @@ export default function ChatList({ filter }: ChatListProps) {
 
     const sortedFriends = useMemo(() => {
         if (filter !== 'Friends') return [];
-
+        
         return [...friends].sort((a, b) => {
             const chatA = chatsState[a.uid]?.lastMessage;
             const chatB = chatsState[b.uid]?.lastMessage;
@@ -80,36 +82,40 @@ export default function ChatList({ filter }: ChatListProps) {
         });
     }, [friends, chatsState, filter]);
 
+    const currentData = filter === 'Friends' ? sortedFriends : filter === 'Incoming' ? incomingRequests : filter === 'Outgoing' ? outgoingRequests : [];
+
+    if (currentData.length === 0) return <NoFriends />;
+
   return filter === 'Friends' ? (
-    <FlatList
-        data={sortedFriends}
-        keyExtractor={(item) => item.uid}
-        renderItem={({ item }) => (
-            <LiveChatItem 
-                friend={item} 
-                router={router} 
-                chatState={chatsState[item.uid] || { chatID: null, lastMessage: null, loading: true }} 
-            />
-        )}
-        contentContainerStyle={styles.chatList}
-        showsVerticalScrollIndicator={false}
-    />
-  ) : (
-    <FlatList
-        data={filter === 'Incoming' ? incomingRequests : outgoingRequests}
-        keyExtractor={(item: any) => item.uid} 
-        renderItem={({ item }: any) => (
-            <SearchResult  
-                uid={item.uid} 
-                data={item} 
-                isSent={filter === 'Outgoing'} 
-                handleAddFriend={(uid: string) => filter === 'Incoming' ? acceptNewFriend(uid) : cancelNewFriend(uid)} 
-            />
-        )}
-        contentContainerStyle={styles.chatList}
-        showsVerticalScrollIndicator={false}
-    />
-  )
+  <FlatList
+    data={currentData}
+    keyExtractor={(item) => item.uid}
+    renderItem={({ item }) => (
+      <LiveChatItem 
+        friend={item} 
+        router={router} 
+        chatState={chatsState[item.uid] || { chatID: null, lastMessage: null, loading: true }} 
+      />
+    )}
+    contentContainerStyle={styles.chatList}
+    showsVerticalScrollIndicator={false}
+  />
+) : (
+  <FlatList
+    data={currentData}
+    keyExtractor={(item: any) => item.uid} 
+    renderItem={({ item }: any) => (
+      <SearchResult  
+        uid={item.uid} 
+        data={item} 
+        isSent={filter === 'Outgoing'} 
+        handleAddFriend={(uid: string) => filter === 'Incoming' ? acceptNewFriend(uid) : cancelNewFriend(uid)} 
+      />
+    )}
+    contentContainerStyle={styles.chatList}
+    showsVerticalScrollIndicator={false}
+  />
+);
 }
 
 function LiveChatItem({ friend, router, chatState }: { friend: any; router: any; chatState: any }) {

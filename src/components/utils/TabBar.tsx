@@ -20,20 +20,16 @@ export default function TabBar({
 }: TabBarProps) {
   const isDark = themeMode === 'dark';
 
-  // Define tab items
-  // Under the 'floating' style, we insert a placeholder in the middle for the floating center action
   const tabs = [
     { id: 'home', label: 'Home', icon: 'home-outline', iconFilled: 'home' },
     ...(styleType === 'floating' ? [{ id: 'scanner', label: 'Scan', icon: 'scan-outline', iconFilled: 'scan', isCenter: true }] : []),
     { id: 'profile', label: 'Profile', icon: 'person-outline', iconFilled: 'person' },
   ];
 
-  // Theme-based background colors
   const containerBg = isDark ? '#16181D' : '#FFFFFF';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)';
   const shadowColor = isDark ? '#000000' : '#8E9096';
 
-  // Render different styles based on styleType
   return (
     <View
       style={[
@@ -49,9 +45,6 @@ export default function TabBar({
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
 
-          // -------------------------------------------------------------
-          // STYLE 1: Capsule Pill Style
-          // -------------------------------------------------------------
           if (styleType === 'capsule') {
             return (
               <TouchableOpacity
@@ -76,9 +69,6 @@ export default function TabBar({
             );
           }
 
-          // -------------------------------------------------------------
-          // STYLE 2: Classic Tab Style (Icon + Label always visible)
-          // -------------------------------------------------------------
           if (styleType === 'classic') {
             return (
               <TouchableOpacity
@@ -107,9 +97,6 @@ export default function TabBar({
             );
           }
 
-          // -------------------------------------------------------------
-          // STYLE 3: Floating Scanner Center Style
-          // -------------------------------------------------------------
           if (styleType === 'floating') {
             if (tab.isCenter) {
               return (
@@ -163,7 +150,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 24,
-    left: '25%',
+    left: '15%',
     borderRadius: 28,
     borderWidth: 1,
     paddingVertical: 10,
@@ -173,7 +160,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 15,
     zIndex: 100,
-    width: '50%',
+    width: '70%',
   },
   innerContainer: {
     flexDirection: 'row',

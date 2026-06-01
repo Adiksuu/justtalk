@@ -2,7 +2,6 @@ import auth, { onAuthStateChanged } from '@react-native-firebase/auth';
 import ChatList from '@/components/ui/ChatList';
 import Filters from '@/components/ui/Filters';
 import Header from '@/components/ui/Header';
-import Stories from '@/components/ui/Stories';
 import TabBar from '@/components/utils/TabBar';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -50,7 +49,6 @@ export default function HomeScreen() {
     <View style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <Header />
-        <Stories />
         <Filters activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
         <ChatList filter={activeFilter} />
       </SafeAreaView>

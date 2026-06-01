@@ -1,15 +1,13 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
-import { getInitials } from '@/functions/profile'
 import { Ionicons } from '@expo/vector-icons'
+import Avatar from '@/components/chat/Avatar';
 
 export default function SearchResult({ uid, data, isSent, handleAddFriend }: { uid: string; data: any, isSent: boolean, handleAddFriend: (uid: string) => void }) {
   return (
     <View style={styles.resultItem}>
         <View style={styles.resultAvatar}>
-          <Text style={styles.resultAvatarText}>
-            {getInitials(data.fullName)}
-          </Text>
+          <Avatar fullName={data.fullName || ''} />
         </View>
         <View style={styles.resultInfo}>
           <Text style={styles.resultUsername} numberOfLines={1}>

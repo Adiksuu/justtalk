@@ -113,7 +113,7 @@ export default function Header() {
         )}
         {!searchOpen && (
           <TouchableOpacity style={styles.addButton} activeOpacity={0.7} onPress={openSearch}>
-            <Ionicons name="add" size={26} color="#F9FAFB" />
+            <Ionicons name="search-outline" size={26} color="#F9FAFB" />
           </TouchableOpacity>
         )}
       </View>
