@@ -15,6 +15,8 @@ import ChatInfoSubscreen from '@/components/chat/ChatInfoSubscreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as ScreenCapture from 'expo-screen-capture';
 import ChatEmptyState from '@/components/chat/ChatEmptyState';
+import { handleScroll } from '@/functions/utility';
+import ScrollToBottom from '@/components/chat/ScrollToBottom';
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -35,6 +37,9 @@ export default function ChatScreen() {
 
   const [infoVisible, setInfoVisible] = useState(false);
   const [activeStatus, setActiveStatus] = useState<{ state: string; lastSeen: number } | null>(null);
+
+  const [showButton, setShowButton] = useState(false);
+  const scrollViewRef = useRef(null); 
 
   useEffect(() => {
     if (!friendUID) return;
@@ -138,6 +143,9 @@ export default function ChatScreen() {
         <View style={styles.listContainer} onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}>
           <FlashList 
             data={processedMessages}
+            ref={scrollViewRef}
+            scrollEventThrottle={16}
+            onScroll={(e) => handleScroll(e, setShowButton)}
             renderItem={({ item }) => (
                 <View style={styles.invertedItem}>
                   <MessageBubble 
@@ -173,6 +181,7 @@ export default function ChatScreen() {
             </View>
           ) : null}
         </View>
+        <ScrollToBottom showButton={showButton} scrollViewRef={scrollViewRef} />
         <InputBar chatId={id || ''} friendUID={friendUID || ''} replyingTo={replyingToMessage} onCancelReply={() => setReplyingToMessage(null)} />
       </KeyboardAvoidingView>
 
