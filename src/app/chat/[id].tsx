@@ -17,6 +17,7 @@ import * as ScreenCapture from 'expo-screen-capture';
 import ChatEmptyState from '@/components/chat/ChatEmptyState';
 import { handleScroll } from '@/functions/utility';
 import ScrollToBottom from '@/components/chat/ScrollToBottom';
+import { getDatabase, onValue, ref } from '@react-native-firebase/database';
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -40,6 +41,24 @@ export default function ChatScreen() {
 
   const [showButton, setShowButton] = useState(false);
   const scrollViewRef = useRef(null); 
+  const [chatName, setChatName] = useState(name);
+
+  useEffect(() => {
+        if (!id || !friendUID) return;
+
+        const db = getDatabase();
+        const usernameRef = ref(db, `chats/${id}/usernames/${friendUID}/chatUsername`);
+
+        const unsubscribe = onValue(usernameRef, (snapshot) => {
+            if (snapshot.exists()) {
+                setChatName(snapshot.val());
+            } else {
+                setChatName(name);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [id, friendUID]);
 
   useEffect(() => {
     if (!friendUID) return;
@@ -133,7 +152,7 @@ export default function ChatScreen() {
       >
         <SafeAreaView edges={['top']} style={{ backgroundColor: '#16181D' }}>
           <ChatHeader
-            name={name || 'Chat'}
+            name={chatName || 'Chat'}
             onBack={() => router.back()}
             friendUID={friendUID}
             onShowInfo={() => setInfoVisible(true)}
@@ -162,7 +181,7 @@ export default function ChatScreen() {
             onEndReached={handleLoadMoreMessages}
             onEndReachedThreshold={0.2}
             ListEmptyComponent={
-              <ChatEmptyState name={name || 'User'} />
+              <ChatEmptyState name={chatName || 'User'} />
             }
             ListHeaderComponent={<View style={{ height: spacerHeight }} />}
             onContentSizeChange={(w, h) => {
@@ -177,7 +196,7 @@ export default function ChatScreen() {
           />
           {isFriendTyping ? (
             <View style={{ transform: [{ scaleY: -1 }], paddingBottom: 8 }}>
-              <MessageBubble message={{ type: 'typing', text: `${name} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} setReplyingToMessage={setReplyingToMessage} />
+              <MessageBubble message={{ type: 'typing', text: `${chatName} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} setReplyingToMessage={setReplyingToMessage} />
             </View>
           ) : null}
         </View>
@@ -190,7 +209,7 @@ export default function ChatScreen() {
           visible={infoVisible}
           onClose={() => setInfoVisible(false)}
           friendUID={friendUID}
-          name={name || 'User'}
+          name={chatName || 'User'}
           chatId={id || ''}
           activeStatus={activeStatus}
           onFriendRemoved={() => {

@@ -254,7 +254,7 @@ export const subscribeToRequests = ({ filter, currentUserId, onDataChange, getUs
             onDataChange([]);
         }
     }, (error) => {
-        console.error(`Error while listening to ${subPath}:`, error);
+        console.error(`Error while listening:`, error);
     });
 };
 
@@ -278,5 +278,19 @@ export const getChatID = async (targetUID: string) => {
     } catch (error) {
         console.error(error);
         return null;
+    }
+}
+
+// Function to set username for friend chat
+export const setFriendChatUsername = async (friendId: string, chatId: string, username: string) => {
+    try {
+        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        await update(ref(db, `chats/${chatId}/usernames/${friendId}/`), {
+            chatUsername: username
+        })
+        return true;
+    } catch (error) {
+        console.error(error);
+        return false;
     }
 }

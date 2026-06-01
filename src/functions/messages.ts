@@ -175,37 +175,34 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
     const id = await getChatID(uid);
     
     if (!id) {
-        setChatState({ chatID: null, lastMessage: null, loading: false });
+        setChatState({ chatID: null, lastMessage: null, loading: false, customUsername: null });
         return;
     }
 
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const chatRef = ref(db, `chats/${id}/messages`);
-
-    let isFirstLoad = true;
     const currentUserId = auth().currentUser?.uid;
 
+    let isFirstLoad = true;
     let cachedLatest: any = null;
 
     const unsubscribeMessages = onValue(chatRef, async () => {
         const latest = await getLatestMessage(id);
         cachedLatest = latest;
         const unreadCount = await getUnreadMessagesCount(id, currentUserId || '');
-        setChatState({
+        
+        setChatState((prev: any) => ({
             chatID: id,
-            lastMessage: latest,
             loading: false,
             unreadCount,
-            isRemoved: latest.isRemoved,
-        });
+            isRemoved: latest?.isRemoved || false,
+            lastMessage: latest,
+            customUsername: prev?.customUsername !== undefined ? prev.customUsername : null
+        }));
 
         if (!isFirstLoad && latest && latest.uid !== currentUserId && !latest.isRemoved) heavyHaptic();
-
         isFirstLoad = false;
-    }, (error) => {
-        console.error("Error listening to chat messages:", error);
     });
-
     const readRef = ref(db, `chats/${id}/read/${currentUserId}`);
     const unsubscribeRead = onValue(readRef, async () => {
         if (!cachedLatest) return;
@@ -216,9 +213,19 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
         }));
     });
 
+    const usernameRef = ref(db, `chats/${id}/usernames/${uid}/chatUsername`);
+    const unsubscribeUsername = onValue(usernameRef, (snapshot) => {
+        const chatUsername = snapshot.exists() ? snapshot.val() : null;
+        setChatState((prev: any) => ({
+            ...prev,
+            customUsername: chatUsername
+        }));
+    });
+
     unsubscribeChat(() => {
         unsubscribeMessages();
         unsubscribeRead();
+        unsubscribeUsername();
     });
 };
 

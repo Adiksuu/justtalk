@@ -141,7 +141,7 @@ export default function ChatInfoSubscreen({
       <SafeAreaView style={styles.container}>
         <Header onClose={onClose} />
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <ProfileInfo name={name} activeStatus={activeStatus} />
+          <ProfileInfo name={name} activeStatus={activeStatus} friendId={friendUID} chatId={chatId} />
           <Informations friendProfile={friendProfile} loadingProfile={loadingProfile} />
           <Medias sharedMedia={sharedMedia} loadingMedia={loadingMedia} getMediaThumbnail={getMediaThumbnail} handleMediaPress={(item, index) => handleMediaPress(item, index, sharedMedia, setPreviewImages, setImagePreviewIndex, setImagePreviewVisible, setSelectedVideoUrl)} />
           <TouchableOpacity
