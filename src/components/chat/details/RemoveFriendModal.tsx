@@ -2,52 +2,66 @@ import { View, Text, Animated, TouchableOpacity, StyleSheet } from 'react-native
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons'
 
-export default function BottomSheetModal({backdropAnim, modalAnim, closeLogoutConfirm, handleLogout}: {backdropAnim: Animated.Value, modalAnim: Animated.Value, closeLogoutConfirm: () => void, handleLogout: () => void}) {
+interface RemoveFriendModalProps {
+  backdropAnim: Animated.Value;
+  modalAnim: Animated.Value;
+  closeConfirm: () => void;
+  handleRemove: () => void;
+  name: string;
+}
+
+export default function RemoveFriendModal({
+  backdropAnim,
+  modalAnim,
+  closeConfirm,
+  handleRemove,
+  name,
+}: RemoveFriendModalProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
-        <Animated.View 
+      <Animated.View 
         style={[styles.backdrop, { opacity: backdropAnim }]} 
-        onTouchStart={closeLogoutConfirm}
-        />
-        <View style={styles.sheetWrapper}>
+        onTouchStart={closeConfirm}
+      />
+      <View style={styles.sheetWrapper}>
         <Animated.View style={[styles.sheetContent, { transform: [{ translateY: modalAnim }] }]}>
-            <View style={styles.sheetHandle} />
-            
-            <View style={styles.sheetHeader}>
+          <View style={styles.sheetHandle} />
+          
+          <View style={styles.sheetHeader}>
             <View style={styles.warningIconCircle}>
-                <Ionicons name="warning-outline" size={32} color="#EF4444" />
+              <Ionicons name="person-remove-outline" size={32} color="#EF4444" />
             </View>
-            <Text style={styles.sheetTitle}>Sign Out</Text>
+            <Text style={styles.sheetTitle}>Remove Friend</Text>
             <Text style={styles.sheetSubtitle}>
-                Are you absolutely sure you want to sign out? You will need to re-verify your account to log back in.
+              Are you absolutely sure you want to remove {name} from your friend list? You will no longer be able to message each other unless you send another request.
             </Text>
-            </View>
+          </View>
 
-            <View style={styles.sheetButtonsContainer}>
+          <View style={styles.sheetButtonsContainer}>
             <TouchableOpacity 
-                style={styles.confirmLogoutButton} 
-                activeOpacity={0.8}
-                onPress={handleLogout}
+              style={styles.confirmButton} 
+              activeOpacity={0.8}
+              onPress={handleRemove}
             >
-                <Text style={styles.confirmLogoutText}>Sign Out Now</Text>
+              <Text style={styles.confirmText}>Remove Friend</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-                style={styles.cancelLogoutButton} 
-                activeOpacity={0.8}
-                onPress={closeLogoutConfirm}
+              style={styles.cancelButton} 
+              activeOpacity={0.8}
+              onPress={closeConfirm}
             >
-                <Text style={styles.cancelLogoutText}>Cancel</Text>
+              <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-            </View>
+          </View>
         </Animated.View>
-        </View>
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-    backdrop: {
+  backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     zIndex: 1000,
@@ -106,19 +120,19 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 12,
   },
-  confirmLogoutButton: {
+  confirmButton: {
     backgroundColor: '#EF4444',
     height: 54,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  confirmLogoutText: {
+  confirmText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
   },
-  cancelLogoutButton: {
+  cancelButton: {
     backgroundColor: 'transparent',
     height: 54,
     borderRadius: 16,
@@ -127,7 +141,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  cancelLogoutText: {
+  cancelText: {
     color: '#F9FAFB',
     fontSize: 16,
     fontWeight: '600',

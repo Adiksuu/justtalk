@@ -10,7 +10,8 @@ import MessageBubble from '@/components/chat/MessageBubble';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { Message } from '@/interfaces/Message';
 import { sendScreenshotNotificationMessage, subscribeToMessages } from '@/functions/messages';
-import { setUserReadMessages, setUserTyping, subscribeToTypingStatus, subscribeToUserReadTime } from '@/functions/activity';
+import { setUserReadMessages, setUserTyping, subscribeToTypingStatus, subscribeToUserReadTime, subscribeToUserActivity } from '@/functions/activity';
+import ChatInfoSubscreen from '@/components/chat/ChatInfoSubscreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as ScreenCapture from 'expo-screen-capture';
 import ChatEmptyState from '@/components/chat/ChatEmptyState';
@@ -31,6 +32,20 @@ export default function ChatScreen() {
   const [friendReadTime, setFriendReadTime] = useState<number | null>(null);
   const [activeMenuMessageId, setActiveMenuMessageId] = useState<string | null>(null);
   const [replyingToMessage, setReplyingToMessage] = useState<Message | null>(null);
+
+  const [infoVisible, setInfoVisible] = useState(false);
+  const [activeStatus, setActiveStatus] = useState<{ state: string; lastSeen: number } | null>(null);
+
+  useEffect(() => {
+    if (!friendUID) return;
+
+    const unsubscribe = subscribeToUserActivity(friendUID, (snapshot: any) => {
+      if (!snapshot) return;
+      setActiveStatus(snapshot);
+    });
+
+    return () => unsubscribe();
+  }, [friendUID]);
 
   ScreenCapture.useScreenshotListener(async () => {
     await sendScreenshotNotificationMessage(id || '');
@@ -116,6 +131,7 @@ export default function ChatScreen() {
             name={name || 'Chat'}
             onBack={() => router.back()}
             friendUID={friendUID}
+            onShowInfo={() => setInfoVisible(true)}
           />
         </SafeAreaView>
         
@@ -159,6 +175,21 @@ export default function ChatScreen() {
         </View>
         <InputBar chatId={id || ''} friendUID={friendUID || ''} replyingTo={replyingToMessage} onCancelReply={() => setReplyingToMessage(null)} />
       </KeyboardAvoidingView>
+
+      {friendUID && (
+        <ChatInfoSubscreen
+          visible={infoVisible}
+          onClose={() => setInfoVisible(false)}
+          friendUID={friendUID}
+          name={name || 'User'}
+          chatId={id || ''}
+          activeStatus={activeStatus}
+          onFriendRemoved={() => {
+            setInfoVisible(false);
+            router.back();
+          }}
+        />
+      )}
     </GestureHandlerRootView>
   );
 }

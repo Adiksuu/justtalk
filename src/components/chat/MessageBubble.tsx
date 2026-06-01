@@ -17,7 +17,7 @@ import MessagePreview from './MessagePreview';
 import VideoMessage from './messageTypes/VideoMessage';
 
 export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setReplyingToMessage }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void, setReplyingToMessage: (message: Message | null) => void }) {
-  const { type, isSent } = message;
+  const { type, isSent, isRemoved } = message;
   const { id: chatId } = useLocalSearchParams<{ id: string }>();
   const swipeableRef = useRef<Swipeable>(null);
 
@@ -38,13 +38,13 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
   }, [message.replyingTo, chatId]);
 
   const doubleTap = Gesture.Tap().numberOfTaps(2).runOnJS(true).onStart(async () => {
-      if (type === 'system' || type === 'typing') return;
+      if (type === 'system' || type === 'typing' || isRemoved) return;
       lightHaptic()
       await reactToMessage(chatId || '', message.id, '❤️');
   });
 
   const longPress = Gesture.LongPress().minDuration(500).runOnJS(true).onStart(() => {
-      if (type === 'system' || type === 'typing') return;
+      if (type === 'system' || type === 'typing' || isRemoved) return;
       lightHaptic()
       onToggleMenu(!isMenuOpen);
   });

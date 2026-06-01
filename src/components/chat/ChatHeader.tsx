@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import {  StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Avatar from './Avatar';
 
-export default function ChatHeader({ name, onBack, friendUID }: { name: string; onBack: () => void; friendUID: string }) {
+export default function ChatHeader({ name, onBack, friendUID, onShowInfo }: { name: string; onBack: () => void; friendUID: string; onShowInfo?: () => void }) {
   const [activeStatus, setActiveStatus] = useState<{ state: string; lastSeen: number } | null>(null);
 
   useEffect(() => {
@@ -42,14 +42,14 @@ console.log(activeStatus, friendUID )
         <Text style={headerStyles.status}>{activeStatus?.state === 'online' ? 'Just now' : `last seen ${timeAgo(activeStatus?.lastSeen)}`}</Text>
       </View>
 
-      {/* <View style={headerStyles.actions}>
-        <TouchableOpacity activeOpacity={0.7} style={headerStyles.actionBtn}>
-          <Ionicons name="videocam-outline" size={21} color="#FFFFFF" />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.7} style={headerStyles.actionBtn}>
+      <View style={headerStyles.actions}>
+        {/* <TouchableOpacity activeOpacity={0.7} style={headerStyles.actionBtn}>
           <Ionicons name="call-outline" size={20} color="#FFFFFF" />
+        </TouchableOpacity> */}
+        <TouchableOpacity onPress={onShowInfo} activeOpacity={0.7} style={headerStyles.actionBtn}>
+          <Ionicons name="ellipsis-vertical" size={21} color="#FFFFFF" />
         </TouchableOpacity>
-      </View> */}
+      </View>
     </View>
   );
 }
