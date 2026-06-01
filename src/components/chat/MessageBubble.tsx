@@ -71,6 +71,9 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
   };
 
   const renderMessageContent = () => {
+    if (message.isRemoved) {
+      return <SystemMessage message={{ ...message, text: 'Message removed' }} />;
+    }
     switch (type) {
       case 'image':
         return <ImageMessage message={{ ...message, media: decryptedMedia }} />;

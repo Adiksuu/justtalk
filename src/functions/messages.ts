@@ -196,9 +196,10 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
             lastMessage: latest,
             loading: false,
             unreadCount,
+            isRemoved: latest.isRemoved,
         });
 
-        if (!isFirstLoad && latest && latest.uid !== currentUserId) heavyHaptic();
+        if (!isFirstLoad && latest && latest.uid !== currentUserId && !latest.isRemoved) heavyHaptic();
 
         isFirstLoad = false;
     }, (error) => {
@@ -241,5 +242,18 @@ export const reactToMessage = async (chatId: string, messageId: string, emoji: s
         }
     } catch (error) {
         console.error("Error reacting to message:", error);
+    }
+}
+
+// Function to remove message
+export const removeMessage = async (chatId: string, messageId: string) => {
+    try {
+        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const messageRef = ref(db, `chats/${chatId}/messages/${messageId}`);
+        await update(messageRef, {
+            isRemoved: true
+        });
+    } catch (error) {
+        console.error("Error removing message:", error);
     }
 }

@@ -128,7 +128,7 @@ function LiveChatItem({ friend, router, chatState }: { friend: any; router: any;
             return { text: 'No messages', time: '', sender: '' };
         }
         return {
-            text: chatState.lastMessage.type === 'text' ? chatState.lastMessage.text : "Sent an attachment",
+            text: chatState.lastMessage.isRemoved ? 'Message removed' : chatState.lastMessage.type === 'text' ? chatState.lastMessage.text : "Sent an attachment",
             time: formatTime(chatState.lastMessage.time),
             sender: chatState.lastMessage.uid === auth().currentUser?.uid ? 'You' : friend.fullName,
             unreadCount: chatState.unreadCount || 0
