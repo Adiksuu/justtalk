@@ -6,13 +6,7 @@ import { useEffect } from 'react';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
-import { setJSExceptionHandler } from 'react-native-exception-handler';
-setJSExceptionHandler((error, isFatal) => {
-  console.log('CAUGHT ERROR:', error.message);
-  console.log('STACK TRACE:', error.stack);
 
-  alert(`Error: ${error.message}\nStack: ${error.stack}`);
-}, true);
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
