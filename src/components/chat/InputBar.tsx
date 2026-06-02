@@ -15,12 +15,14 @@ export default function InputBar({
   chatId, 
   friendUID, 
   replyingTo, 
-  onCancelReply 
+  onCancelReply,
+  chatTheme
 }: { 
   chatId: string, 
   friendUID: string, 
   replyingTo: Message | null, 
-  onCancelReply: () => void 
+  onCancelReply: () => void,
+  chatTheme: any
 }) {
   const [text, setText] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
@@ -77,7 +79,7 @@ export default function InputBar({
       ]}
     >
       {replyingTo && (
-        <ReplyBox replyingTo={replyingTo} onCancelReply={onCancelReply} chatId={chatId || ''} />
+        <ReplyBox replyingTo={replyingTo} onCancelReply={onCancelReply} chatId={chatId || ''} chatTheme={chatTheme} />
       )}
 
       <View style={inputStyles.bottomRow}>

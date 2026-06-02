@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 
-export default function TypingMessage({message}: {message: Message}) {
+export default function TypingMessage({message, chatTheme}: {message: Message, chatTheme: string}) {
     const { text } = message;
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -42,7 +42,7 @@ export default function TypingMessage({message}: {message: Message}) {
             ]}
         >
             <LinearGradient
-                colors={['#7C3AED', '#6366F1']}
+                colors={[chatTheme[0], chatTheme[1]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={[bubbleStyles.bubble]}

@@ -9,7 +9,7 @@ import RenderReactions from '../RenderReactions';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 
-export default function TextMessage({ message }: { message: Message }) {
+export default function TextMessage({ message, chatTheme }: { message: Message, chatTheme: string }) {
   const { text, time, isSent, isRead, reactions } = message;
 
   const hasReactions = reactions && Object.keys(reactions).length > 0;
@@ -19,7 +19,7 @@ export default function TextMessage({ message }: { message: Message }) {
       {isSent ? (
         <View style={[styles.bubbleWrapper, hasReactions && styles.containerWithReactions]}>
           <LinearGradient
-            colors={['#7C3AED', '#6366F1']}
+            colors={[chatTheme[0], chatTheme[1]]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.bubble, styles.bubbleSent]}

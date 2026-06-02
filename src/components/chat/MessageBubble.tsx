@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import MessagePreview from './MessagePreview';
 import VideoMessage from './messageTypes/VideoMessage';
 
-export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setReplyingToMessage }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void, setReplyingToMessage: (message: Message | null) => void }) {
+export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setReplyingToMessage, chatTheme }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void, setReplyingToMessage: (message: Message | null) => void, chatTheme: string }) {
   const { type, isSent, isRemoved } = message;
   const { id: chatId } = useLocalSearchParams<{ id: string }>();
   const swipeableRef = useRef<Swipeable>(null);
@@ -54,7 +54,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
   const renderLeftActions = () => {
     return (
       <View style={styles.replyActionContainer}>
-        <Ionicons name="arrow-undo-outline" size={20} color="#6366F1" />
+        <Ionicons name="arrow-undo-outline" size={20} color={chatTheme[0]} />
       </View>
     );
   };
@@ -67,7 +67,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
 
   const renderReplyPreview = () => {
     if (!message.replyingTo) return null;
-    return <MessagePreview isSent={isSent} decryptedReplyText={decryptedReplyText} />
+    return <MessagePreview isSent={isSent} decryptedReplyText={decryptedReplyText} chatTheme={chatTheme} />
   };
 
   const renderMessageContent = () => {
@@ -80,15 +80,15 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
       case 'video':
         return <VideoMessage message={{ ...message, media: decryptedMedia }} />;
       case 'typing':
-        return <TypingMessage message={message} />;
+        return <TypingMessage message={message} chatTheme={chatTheme} />;
       case 'system':
         return <SystemMessage message={{ ...message, text: decryptedText }} />;
       default:
         const hasUrl = decryptedText && /https?:\/\/[^\s]+/i.test(decryptedText);
         if (hasUrl) {
-          return <LinkPreviewMessage message={{ ...message, text: decryptedText }} />;
+          return <LinkPreviewMessage message={{ ...message, text: decryptedText }} chatTheme={chatTheme} />;
         }
-        return <TextMessage message={{ ...message, text: decryptedText}} />;
+        return <TextMessage message={{ ...message, text: decryptedText}} chatTheme={chatTheme} />;
     }
   };
 

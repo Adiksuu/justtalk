@@ -16,6 +16,7 @@ import Header from './details/Header';
 import ProfileInfo from './details/ProfileInfo';
 import Informations from './details/Informations';
 import Medias from './details/Medias';
+import ChatThemes from './details/ChatThemes';
 import VideoPlayerModal from './details/VideoPlayer';
 import RemoveFriendModal from './details/RemoveFriendModal';
 import { SharedMediaItem } from '@/interfaces/SharedMediaItem';
@@ -144,6 +145,7 @@ export default function ChatInfoSubscreen({
           <ProfileInfo name={name} activeStatus={activeStatus} friendId={friendUID} chatId={chatId} />
           <Informations friendProfile={friendProfile} loadingProfile={loadingProfile} />
           <Medias sharedMedia={sharedMedia} loadingMedia={loadingMedia} getMediaThumbnail={getMediaThumbnail} handleMediaPress={(item, index) => handleMediaPress(item, index, sharedMedia, setPreviewImages, setImagePreviewIndex, setImagePreviewVisible, setSelectedVideoUrl)} />
+          <ChatThemes chatId={chatId} />
           <TouchableOpacity
             activeOpacity={0.8}
             style={styles.unfriendBtn}

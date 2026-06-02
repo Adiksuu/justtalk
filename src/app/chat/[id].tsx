@@ -15,7 +15,7 @@ import ChatInfoSubscreen from '@/components/chat/ChatInfoSubscreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as ScreenCapture from 'expo-screen-capture';
 import ChatEmptyState from '@/components/chat/ChatEmptyState';
-import { handleScroll } from '@/functions/utility';
+import { getChatThemeColors, handleScroll, subscribeToChatTheme } from '@/functions/utility';
 import ScrollToBottom from '@/components/chat/ScrollToBottom';
 import { getDatabase, onValue, ref } from '@react-native-firebase/database';
 import SystemMessage from '@/components/chat/messageTypes/SystemMessage';
@@ -43,6 +43,7 @@ export default function ChatScreen() {
   const [showButton, setShowButton] = useState(false);
   const scrollViewRef = useRef(null); 
   const [chatName, setChatName] = useState(name);
+  const [chatTheme, setChatTheme]: any = useState();
 
   useEffect(() => {
         if (!id || !friendUID) return;
@@ -124,7 +125,13 @@ export default function ChatScreen() {
       setFriendReadTime(time);
     });
 
+    const unsubscribeTheme = subscribeToChatTheme(id || '', (theme: any) => {
+      const themeColors = getChatThemeColors(theme.theme || "Classic");
+      setChatTheme(themeColors);
+    });
+
     return () => {
+      unsubscribeTheme();
       unsubscribeTyping();
       unsubscribeRead();
     };
@@ -173,6 +180,7 @@ export default function ChatScreen() {
                     isMenuOpen={activeMenuMessageId === item.id} 
                     onToggleMenu={(open: boolean) => setActiveMenuMessageId(open ? item.id : null)} 
                     setReplyingToMessage={setReplyingToMessage} 
+                    chatTheme={chatTheme || ['#7C3AED', '#6366F1']}
                   />
                 </View>
             )}
@@ -199,12 +207,12 @@ export default function ChatScreen() {
           />
           {isFriendTyping ? (
             <View style={{ transform: [{ scaleY: -1 }], paddingBottom: 8 }}>
-              <MessageBubble message={{ type: 'typing', text: `${chatName} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} setReplyingToMessage={setReplyingToMessage} />
+              <MessageBubble message={{ type: 'typing', text: `${chatName} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} setReplyingToMessage={setReplyingToMessage} chatTheme={chatTheme || ['#7C3AED', '#6366F1']}/>
             </View>
           ) : null}
         </View>
         <ScrollToBottom showButton={showButton} scrollViewRef={scrollViewRef} />
-        <InputBar chatId={id || ''} friendUID={friendUID || ''} replyingTo={replyingToMessage} onCancelReply={() => setReplyingToMessage(null)} />
+        <InputBar chatId={id || ''} friendUID={friendUID || ''} replyingTo={replyingToMessage} onCancelReply={() => setReplyingToMessage(null)} chatTheme={chatTheme || ['#7C3AED', '#6366F1']} />
       </KeyboardAvoidingView>
 
       {friendUID && (

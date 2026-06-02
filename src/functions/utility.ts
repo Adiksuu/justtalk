@@ -1,4 +1,7 @@
+import { THEMES } from "@/constants/THEMES";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getApp } from "@react-native-firebase/app";
+import { get, getDatabase, onValue, ref, update } from "@react-native-firebase/database";
 
 export const scrollToBottom = (scrollViewRef: React.RefObject<any>) => {
     scrollViewRef.current?.scrollToOffset({ animated: true });
@@ -33,4 +36,28 @@ export const getMessageDraft = async (chatID: string) => {
       console.log('Error getting preferences:', error)
     }
     return "";
+}
+
+export const setChatTheme = async (theme: string, chatID: string) => {
+  const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+  await update(ref(db, `chats/${chatID}/theme`), {theme})
+  return true;
+}
+
+export const getChatTheme = async (chatID: string) => {
+  const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+  const snapshot = await get(ref(db, `chats/${chatID}/theme`));
+  return snapshot.val();
+}
+
+export const subscribeToChatTheme = (chatID: string, callback: (theme: string) => void) => {
+  const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+  const subscription = onValue(ref(db, `chats/${chatID}/theme`), (snapshot) => {
+    callback(snapshot.val());
+  });
+  return subscription;
+}
+
+export const getChatThemeColors = (theme: string | any) => {
+  return THEMES.find((t) => t.name === theme)?.colors;
 }

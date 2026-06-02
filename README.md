@@ -123,6 +123,7 @@ src/
 - Friend removal with optional biometric confirmation
 - Custom nickname assignment per friend, per conversation
 - Empty state handling when the friend list is empty
+- Change chat accent theme, per conversation
 
 ### Media
 - Image and video selection from the device gallery via Expo Image Picker
@@ -205,6 +206,7 @@ justtalk/
           ProfileInfo.tsx   Friend avatar, name (editable), and status
           RemoveFriendModal.tsx  Animated confirmation modal for friend removal
           VideoPlayer.tsx   Full-screen video player modal
+          ChatThemes.tsx    Chat theme selector
         messageTypes/
           ImageMessage.tsx  Image message renderer with full-screen preview
           LinkPreviewMessage.tsx  URL preview with metadata extraction
@@ -255,6 +257,7 @@ justtalk/
       UserProfileData.ts   User profile type definition
     constants/
       COUNTRIES.ts         Country code data for phone authentication
+      THEMES.ts            Chat themes data (accent colors)
     global.css             CSS custom properties for web typography
 ```
 
@@ -290,6 +293,7 @@ The application maintains several concurrent real-time subscriptions through Fir
 | **Friend Requests** | `friends_requests/{uid}/incoming/` and `outgoing/` | Request state changes |
 | **Friends List** | `friends/{uid}/` | Friend additions and removals |
 | **Custom Usernames** | `chats/{chatId}/usernames/{uid}/chatUsername` | Per-friend nickname changes |
+| **Chat Themes** | `chats/{chatId}/theme` | Per-chat accent theme changes |
 
 All listeners are properly cleaned up in `useEffect` return functions to prevent memory leaks.
 

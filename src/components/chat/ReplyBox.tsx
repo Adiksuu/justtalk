@@ -4,12 +4,12 @@ import { Ionicons } from '@expo/vector-icons'
 import { Message } from '@/interfaces/Message'
 import { decryptMessage } from '@/functions/crypto'
 
-export default function ReplyBox({replyingTo, onCancelReply, chatId}: {replyingTo: Message, onCancelReply: () => void, chatId: string}) {
+export default function ReplyBox({replyingTo, onCancelReply, chatId, chatTheme}: {replyingTo: Message, onCancelReply: () => void, chatId: string, chatTheme: any}) {
   return (
     <View style={inputStyles.replyContainer}>
-        <Ionicons name="arrow-undo-outline" size={16} color="#6366F1" style={inputStyles.replyIcon} />
+        <Ionicons name="arrow-undo-outline" size={16} color={chatTheme[0]} style={inputStyles.replyIcon} />
         <View style={inputStyles.replyTextContainer}>
-        <Text style={inputStyles.replyTitle}>Replying to message</Text>
+        <Text style={{...inputStyles.replyTitle, color: chatTheme[0]}}>Replying to message</Text>
         <Text style={inputStyles.replyText} numberOfLines={1}>
             {replyingTo.type === 'image' || replyingTo.type === 'video' ? (
             <>
@@ -51,7 +51,6 @@ const inputStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   replyTitle: {
-    color: '#6366F1',
     fontSize: 11,
     fontWeight: 'bold',
     marginBottom: 1,

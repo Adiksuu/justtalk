@@ -2,15 +2,15 @@ import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
 
-export default function MessagePreview({ isSent, decryptedReplyText }: { isSent: boolean | undefined, decryptedReplyText: string | undefined }) {
+export default function MessagePreview({ isSent, decryptedReplyText, chatTheme }: { isSent: boolean | undefined, decryptedReplyText: string | undefined, chatTheme: string }) {
   return (
       <View style={[
         styles.replyPreviewWrapper, 
         isSent ? styles.replyPreviewSent : styles.replyPreviewReceived
       ]}>
         <View style={styles.replyPreviewHeader}>
-          <Ionicons name="arrow-undo" size={10} color="#6366F1" style={{ marginRight: 4 }} />
-          <Text style={styles.replyPreviewTitle}>
+          <Ionicons name="arrow-undo" size={10} color={chatTheme[0]} style={{ marginRight: 4 }} />
+          <Text style={{...styles.replyPreviewTitle, color: chatTheme[0]}}>
             {isSent ? 'You replied' : 'Replied'}
           </Text>
         </View>
@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
     replyPreviewTitle: {
         fontSize: 10,
         fontWeight: '600',
-        color: '#6366F1',
     },
     replyPreviewText: {
         fontSize: 12,
