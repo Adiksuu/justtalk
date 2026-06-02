@@ -69,11 +69,11 @@ export const getLatestMessage = async (chatId: string) => {
             const decryptedText = decryptMessage(latestMessage.text || '', chatId);
             return { ...latestMessage, text: decryptedText };
         } else {
-            return { text: 'No messages' };
+            return;
         }
     } catch (error) {
         console.error("Error fetching latest message:", error);
-        return { text: 'No messages' };
+        return;
     }
 }
 
