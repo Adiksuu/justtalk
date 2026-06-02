@@ -1,7 +1,7 @@
 export interface Message {
-  id: string;
-  uid: string;
-  type: MessageType;
+  id?: string | any;
+  uid?: string;
+  type?: MessageType;
   text?: string;
   media?: string;
   time: string;

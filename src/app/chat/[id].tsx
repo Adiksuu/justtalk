@@ -18,6 +18,7 @@ import ChatEmptyState from '@/components/chat/ChatEmptyState';
 import { handleScroll } from '@/functions/utility';
 import ScrollToBottom from '@/components/chat/ScrollToBottom';
 import { getDatabase, onValue, ref } from '@react-native-firebase/database';
+import SystemMessage from '@/components/chat/messageTypes/SystemMessage';
 
 export default function ChatScreen() {
   const router = useRouter();
@@ -184,6 +185,8 @@ export default function ChatScreen() {
               <ChatEmptyState name={chatName || 'User'} friendUID={friendUID || ''} />
             }
             ListHeaderComponent={<View style={{ height: spacerHeight }} />}
+            ListFooterComponentStyle={{ marginTop: 36 }}
+            ListFooterComponent={processedMessages.length > 0 ? <SystemMessage message={{text: 'Messages in this chat are end-to-end encrypted.', time: ''}} /> : null}
             onContentSizeChange={(w, h) => {
               const pureContentHeight = h - spacerHeight;
               const remainingSpace = containerHeight - pureContentHeight;

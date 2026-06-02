@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View, Platform, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardStickyView, useKeyboardHandler } from 'react-native-keyboard-controller';
@@ -9,6 +9,7 @@ import { setUserTyping } from '@/functions/activity';
 import { Message } from '@/interfaces/Message';
 import ReplyBox from './ReplyBox';
 import { pickAndUploadMedia } from '@/functions/media';
+import { getMessageDraft, setMessageDraft } from '@/functions/utility';
 
 export default function InputBar({ 
   chatId, 
@@ -37,12 +38,21 @@ export default function InputBar({
     },
   }, []);
 
+  useEffect(() => {
+    const fetch = async () => {
+      const draft = await getMessageDraft(chatId || '');
+      if (draft) setText(draft);
+    }
+    fetch();
+  }, [chatId]);
+
   const handleSendMessage = () => {
     if (text.trim() !== '') {
       sendMessage(text, chatId, friendUID, replyingTo || undefined, 'text');
       setUserTyping(chatId, "");
       setText('');
       onCancelReply();
+      setMessageDraft('', chatId)
     }
   }
 
@@ -50,6 +60,7 @@ export default function InputBar({
     const result = await pickAndUploadMedia(setUploading)
     if (result) sendMessage('', chatId, friendUID, replyingTo || undefined, result.type, result.url);
     onCancelReply();
+    setMessageDraft('', chatId)
   }
 
   const getBottomPadding = () => {
@@ -83,7 +94,8 @@ export default function InputBar({
             editable={!uploading}
             onChangeText={(value) => {
               setText(value);
-              setUserTyping(chatId, value)
+              setUserTyping(chatId, value);
+              setMessageDraft(value, chatId);
             }}
             onSubmitEditing={() => handleSendMessage()}
           />

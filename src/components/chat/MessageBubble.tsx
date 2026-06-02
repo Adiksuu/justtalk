@@ -92,7 +92,7 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
     }
   };
 
-  if (type === 'typing' || type === 'system') {
+  if (type === 'typing' || type === 'system' || isRemoved) {
     return renderMessageContent();
   }
 
