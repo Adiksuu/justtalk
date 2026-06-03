@@ -86,8 +86,9 @@ export const pickAndUploadMedia = async (setUploading: any, acceptOnly: string =
 
 export const getMediaThumbnail = (item: SharedMediaItem) => {
     if (item.type === 'image') return item.url;
-    if (item.url.includes('cloudinary.com')) {
-      return item.url.replace(/\.[^/.]+$/, '.jpg');
+    const url = new URL(item.url);
+    if (url.hostname === 'res.cloudinary.com') {
+        return item.url.replace(/\.[^/.]+$/, '.jpg');
     }
     return null;
 };

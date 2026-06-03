@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
-import { handleSignInWithFacebook, handleSignInWithGoogle } from '@/functions/auth';
+import { handleSignInWithGoogle, handleSignInWithGithub } from '@/functions/auth';
 import { useRouter } from 'expo-router';
 
 export default function Providers() {
@@ -11,25 +11,35 @@ export default function Providers() {
     interface Provider {
         name: string;
         icon: keyof typeof Ionicons.glyphMap;
-        action: () => void;
+        action: () => void | Promise<void>;
     }
     const providers: Provider[] = [
         {
             name: 'Google',
             icon: 'logo-google',
-            action: () => {
+            action: async () => {
                 setLoading(true);
-                handleSignInWithGoogle(router);
-                setLoading(false);
+                try {
+                    await handleSignInWithGoogle(router);
+                } catch (error) {
+                    console.error('Google Sign-In error:', error);
+                } finally {
+                    setLoading(false);
+                }
             }
         },
         {
-            name: 'Facebook',
-            icon: 'logo-facebook',
-            action: () => {
+            name: 'Github',
+            icon: 'logo-github',
+            action: async () => {
                 setLoading(true);
-                handleSignInWithFacebook(router);
-                setLoading(false);
+                try {
+                    await handleSignInWithGithub(router);
+                } catch (error) {
+                    console.error('Github Sign-In error:', error);
+                } finally {
+                    setLoading(false);
+                }
             }
         }
     ]

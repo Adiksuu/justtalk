@@ -1,11 +1,17 @@
 import { getApp } from "@react-native-firebase/app";
-import auth, { createUserWithEmailAndPassword, FacebookAuthProvider, GoogleAuthProvider, sendEmailVerification, signInWithCredential, signInWithEmailAndPassword, signInWithPhoneNumber, signOut, updateProfile, verifyBeforeUpdateEmail } from "@react-native-firebase/auth";
+import auth, { createUserWithEmailAndPassword, FacebookAuthProvider, GoogleAuthProvider, GithubAuthProvider, sendEmailVerification, signInWithCredential, signInWithEmailAndPassword, signInWithPhoneNumber, signOut, updateProfile, verifyBeforeUpdateEmail } from "@react-native-firebase/auth";
 import { getDatabase, ref, set } from "@react-native-firebase/database";
 import { Router } from "expo-router";
 import { Animated, TextInput } from "react-native";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { AccessToken, LoginManager } from "react-native-fbsdk-next";
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
+import CryptoJS from 'crypto-js';
+import * as AuthSession from 'expo-auth-session';
+
+WebBrowser.maybeCompleteAuthSession();
 
 // ----- PHONE AUTHENTICATION AND VERIFICATION FUNCTIONS -----
 
@@ -241,30 +247,102 @@ export const handleSignInWithGoogle = async (router: Router) => {
     }
 }
 
+const GITHUB_CLIENT_SECRET = process.env.EXPO_PUBLIC_GITHUB_CLIENT_SECRET;
+
+WebBrowser.maybeCompleteAuthSession();
+
+const discovery = {
+  authorizationEndpoint: 'https://github.com/login/oauth/authorize',
+  tokenEndpoint: 'https://github.com/login/oauth/access_token',
+};
+
+export const handleSignInWithGithub = async (router: Router) => {
+  try {
+    const authInstance = auth();
+    const GITHUB_CLIENT_ID = 'Ov23liXTy0ppJTeVC8Nm';
+
+    const redirectUri = "justtalk://login";
+
+    const request = new AuthSession.AuthRequest({
+      clientId: GITHUB_CLIENT_ID,
+      scopes: ['read:user', 'user:email'],
+      redirectUri: redirectUri,
+    });
+
+    const result = await request.promptAsync(discovery);
+
+    if (result.type === 'success') {
+      const { code } = result.params;
+      
+      if (!code) {
+        throw new Error('Failed to get authorization code from GitHub.');
+      }
+
+      const codeVerifier = request.codeVerifier; 
+
+      const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: GITHUB_CLIENT_ID,
+          client_secret: GITHUB_CLIENT_SECRET,
+          code: code,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier,
+        }),
+      });
+
+      const tokenData = await tokenResponse.json();
+
+      if (tokenData.error) {
+        throw new Error(`Failed to exchange code for token: ${tokenData.error_description || tokenData.error}`);
+      }
+
+      const accessToken = tokenData.access_token;
+
+      if (accessToken) {
+        const credential = GithubAuthProvider.credential(accessToken);
+        await signInWithCredential(authInstance, credential);
+        await saveUserDataToRTDB(auth().currentUser);
+        router.replace('/');
+      } else {
+        throw new Error('Failed to exchange code for token');
+      }
+    } else {
+      console.log('Github Sign-In cancelled:', result.type);
+    }
+  } catch (error) {
+    console.error('Github Sign-In error:', error);
+  }
+};
+
 // ----- FACEBOOK SIGN IN -----
 
-export const handleSignInWithFacebook = async (router: Router) => {
-  try {
-    const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+// export const handleSignInWithFacebook = async (router: Router) => {
+//   try {
+//     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
 
-    if (result.isCancelled) {
-      console.error('Facebook Sign-in cancelled');
-      return;
-    }
+//     if (result.isCancelled) {
+//       console.error('Facebook Sign-in cancelled');
+//       return;
+//     }
 
-    const data = await AccessToken.getCurrentAccessToken();
-    if (!data) {
-      throw new Error('Something went wrong obtaining access token');
-    }
+//     const data = await AccessToken.getCurrentAccessToken();
+//     if (!data) {
+//       throw new Error('Something went wrong obtaining access token');
+//     }
 
-    const facebookCredential = FacebookAuthProvider.credential(data.accessToken);
-    await signInWithCredential(auth(), facebookCredential);
-    await saveUserDataToRTDB(auth().currentUser);
-    router.replace('/');
-  } catch (error) {
-    console.error('Facebook Sign-In error:', error);
-  } 
-}
+//     const facebookCredential = FacebookAuthProvider.credential(data.accessToken);
+//     await signInWithCredential(auth(), facebookCredential);
+//     await saveUserDataToRTDB(auth().currentUser);
+//     router.replace('/');
+//   } catch (error) {
+//     console.error('Facebook Sign-In error:', error);
+//   } 
+// }
 
 // FUCTION TO SAVE DATA TO RTD
 

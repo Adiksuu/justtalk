@@ -2,7 +2,7 @@
 
 A real-time mobile messaging application built with React Native and Expo, targeting Android and iOS (iOS maybe later :p). JustTalk provides end-to-end encrypted conversations, multi-provider authentication, media sharing via Cloudinary, and a suite of interactive chat features -- all backed by Firebase Realtime Database for low-latency data synchronization.
 
-**Current version:** 1.0.15 
+**Current version:** 1.0.16 
 **Package identifier:** `pl.adiksuu.justtalk`  
 **License:** MIT
 
@@ -239,7 +239,7 @@ justtalk/
         TabBar.tsx          Bottom navigation with capsule, classic, and floating styles
     functions/
       activity.ts          Presence, typing status, and read receipt operations
-      auth.ts              Authentication flows (phone, email, Google, Facebook, biometric)
+      auth.ts              Authentication flows (phone, email, Google, Facebook (disabled for now), GitHub, biometric)
       crypto.ts            AES encryption and decryption functions
       friends.ts           Friend request lifecycle and user search
       media.ts             Image/video picking, Cloudinary upload, and media gallery
@@ -272,7 +272,8 @@ JustTalk supports four authentication providers, all managed through Firebase Au
 | **Email/Password** | Standard sign-up with email verification, sign-in with error handling |
 | **Phone Number** | SMS-based OTP verification with 6-digit code input and 60-second cooldown |
 | **Google** | OAuth via `@react-native-google-signin/google-signin` with offline access |
-| **Facebook** | OAuth via `react-native-fbsdk-next` with public_profile and email permissions |
+| **Facebook** | OAuth via `react-native-fbsdk-next` with public_profile and email permissions | (disabled for now)
+| **GitHub** | OAuth via `expo-auth-session` with `user`, `read:user`, `user:email` scopes
 
 After successful authentication, the user's profile data (UID, display name, email, phone number, creation timestamp) is written to the Firebase Realtime Database under `users/{uid}`. The root layout observes `onAuthStateChanged` and redirects to the login screen when no authenticated session exists.
 - <img src="./assets/images/banners/auth_showcase.png" height="550">
