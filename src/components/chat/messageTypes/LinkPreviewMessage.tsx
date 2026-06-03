@@ -7,6 +7,7 @@ import ReadReceipt from '../ReadReceipt';
 import { Message } from '@/interfaces/Message';
 import { formatTime } from '@/functions/messages';
 import RenderReactions from '../RenderReactions';
+import { handleOpenExternalBrowser } from '@/functions/utility';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
@@ -63,9 +64,7 @@ export default function LinkPreviewMessage({ message, chatTheme }: { message: Me
 
   const handlePressUrl = () => {
     const targetUrl = previewData?.url || url;
-    if (targetUrl) {
-      Linking.openURL(targetUrl).catch((err) => console.error('Failed to open URL:', err));
-    }
+    if (targetUrl) handleOpenExternalBrowser(targetUrl)
   };
 
   const renderUrlPreview = () => {

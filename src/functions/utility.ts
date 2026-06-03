@@ -2,6 +2,7 @@ import { THEMES } from "@/constants/THEMES";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getApp } from "@react-native-firebase/app";
 import { get, getDatabase, onValue, ref, update } from "@react-native-firebase/database";
+import { Alert, Linking } from "react-native";
 
 export const scrollToBottom = (scrollViewRef: React.RefObject<any>) => {
     scrollViewRef.current?.scrollToOffset({ animated: true });
@@ -61,3 +62,7 @@ export const subscribeToChatTheme = (chatID: string, callback: (theme: string) =
 export const getChatThemeColors = (theme: string | any) => {
   return THEMES.find((t) => t.name === theme)?.colors;
 }
+
+export const handleOpenExternalBrowser = async (url: string) => {
+  Linking.openURL(url).catch((err) => console.error('Failed to open URL:', err));
+};

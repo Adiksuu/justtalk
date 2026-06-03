@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useEffect, useRef } from 'react'
 import { Alert, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 import { getAuth } from "@react-native-firebase/auth";
+import { handleOpenExternalBrowser } from '@/functions/utility'
 
 export default function card_2({
   hapticsEnabled,
@@ -122,7 +123,7 @@ export default function card_2({
           <View style={styles.separator} />
           <TouchableOpacity 
             activeOpacity={0.7} 
-            onPress={() => Alert.alert('Support tickets and chat features are coming soon!')} 
+            onPress={() => handleOpenExternalBrowser("https://github.com/adiksuu/justtalk/issues")}
             style={styles.rowInteractable}
           >
             <View style={styles.rowLeft}>
@@ -135,7 +136,7 @@ export default function card_2({
               </View>
             </View>
             <View style={styles.moreBadge}>
-              <Text style={styles.moreBadgeText}>Soon</Text>
+              <Text style={styles.moreBadgeText}><Ionicons name="open-outline" size={18} color="#8E9096" /></Text>
             </View>
           </TouchableOpacity>
         </View>
