@@ -6,7 +6,8 @@ The following table describes which versions of JustTalk currently receive secur
 
 | Version  | Supported |
 | -------- | --------- |
-| 1.0.15   | ✅         |
+| 1.0.16   | ✅         |
+| 1.0.15   | ❌         |
 | < 1.0.15 | ❌         |
 
 As JustTalk is currently in its early stages, only the latest public release receives security updates. Users are encouraged to keep their application up to date.
