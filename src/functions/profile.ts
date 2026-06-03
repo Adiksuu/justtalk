@@ -1,5 +1,5 @@
 import { UserProfileData } from "@/interfaces/UserProfileData";
-import auth from "@react-native-firebase/auth";
+import auth, { getAuth } from "@react-native-firebase/auth";
 import { getApp } from "@react-native-firebase/app";
 import { get, getDatabase, ref } from "@react-native-firebase/database";
 
@@ -36,7 +36,7 @@ export const copyUserId = (profile: UserProfileData, setCopiedId: React.Dispatch
 };
 
 export const fetchUserProfile = (router: any, setProfile: React.Dispatch<React.SetStateAction<UserProfileData>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
-    const user = auth().currentUser;
+    const user = getAuth().currentUser;
     if (!user) {
       router.replace('/login');
       return;

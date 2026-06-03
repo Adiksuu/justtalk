@@ -1,14 +1,10 @@
 import { getApp } from "@react-native-firebase/app";
-import auth, { createUserWithEmailAndPassword, FacebookAuthProvider, GoogleAuthProvider, GithubAuthProvider, sendEmailVerification, signInWithCredential, signInWithEmailAndPassword, signInWithPhoneNumber, signOut, updateProfile, verifyBeforeUpdateEmail } from "@react-native-firebase/auth";
-import { getDatabase, ref, set } from "@react-native-firebase/database";
-import { Router } from "expo-router";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, sendEmailVerification, signInWithCredential, signInWithEmailAndPassword, signInWithPhoneNumber, signOut, updateProfile, verifyBeforeUpdateEmail, getAuth } from "@react-native-firebase/auth";
+import { getDatabase, ref, update } from "@react-native-firebase/database";
 import { Animated, TextInput } from "react-native";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { AccessToken, LoginManager } from "react-native-fbsdk-next";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
-import CryptoJS from 'crypto-js';
 import * as AuthSession from 'expo-auth-session';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -21,14 +17,14 @@ export function handleSendCode(countryCode: string, phone: string, isDisabled: b
         setIsDisabled(true);
         fadeAnim.setValue(0);
         slideAnim.setValue(30);
-        signInWithPhoneNumber(auth(), `${countryCode}${phone}`).then((result) => {
+        signInWithPhoneNumber(getAuth(), `${countryCode}${phone}`).then((result) => {
             setConfirmResult(result);
         }).catch((error) => {
             console.log(error)
         })
         setStep('otp');
 
-        intervalRef.current = setInterval(() => {
+        intervalRef.current = window.setInterval(() => {
             setCountdown((prev: number) => {
             if (prev <= 1) {
                 if (intervalRef.current) clearInterval(intervalRef.current);
@@ -38,7 +34,7 @@ export function handleSendCode(countryCode: string, phone: string, isDisabled: b
             });
         }, 1000);
 
-        timerRef.current = setTimeout(() => {
+        timerRef.current = window.setTimeout(() => {
             setIsDisabled(false);
             if (intervalRef.current) clearInterval(intervalRef.current);
         }, 60000);
@@ -60,7 +56,7 @@ export function handleOtpKeyPress(key: string, index: number, otp: string[], otp
     }
 }
 
-export function handleVerifyCode(confirmResult: any, otp: string[], router: Router, fadeAnim: Animated.Value, slideAnim: Animated.Value, setStep: (step: 'phone' | 'otp' | 'email') => void) {
+export function handleVerifyCode(confirmResult: any, otp: string[], router: any, fadeAnim: Animated.Value, slideAnim: Animated.Value, setStep: (step: 'phone' | 'otp' | 'email') => void) {
     if (confirmResult && otp.length === 6) {
       confirmResult.confirm(otp.join(''))
         .then((userCredential: any) => {
@@ -81,7 +77,7 @@ export function handleVerifyCode(confirmResult: any, otp: string[], router: Rout
     }
 }
 
-export async function handleSaveProfile(fullName: string, email: string, setEmailError: React.Dispatch<React.SetStateAction<string>>, setIsSaving: (isSaving: boolean) => void, router: Router) {
+export async function handleSaveProfile(fullName: string, email: string, setEmailError: React.Dispatch<React.SetStateAction<string>>, setIsSaving: (isSaving: boolean) => void, router: any) {
     if (!fullName.trim() || fullName.trim().length < 2) {
       setEmailError('Full name is required (minimum 2 characters)');
       return;
@@ -99,7 +95,7 @@ export async function handleSaveProfile(fullName: string, email: string, setEmai
     setEmailError('');
     setIsSaving(true);
 
-    const user = auth().currentUser;
+    const user = getAuth().currentUser;
     if (user) {
       console.log("Saving profile for user:", user.uid);
       
@@ -129,11 +125,11 @@ export async function handleSaveProfile(fullName: string, email: string, setEmai
     }
 }
 
-export const handleLogout = async (setIsLoggingOut: React.Dispatch<React.SetStateAction<boolean>>, closeLogoutConfirm: () => void, router: Router) => {
+export const handleLogout = async (setIsLoggingOut: React.Dispatch<React.SetStateAction<boolean>>, closeLogoutConfirm: () => void, router: any) => {
     setIsLoggingOut(true);
     closeLogoutConfirm();
     try {
-      await signOut(auth());
+      await signOut(getAuth());
       router.replace('/login');
     } catch (e) {
       console.error("Signout failed:", e);
@@ -145,7 +141,7 @@ export const handleLogout = async (setIsLoggingOut: React.Dispatch<React.SetStat
 // ----- EMAIL AUTHENTICATION AND VERIFICATION FUNCTIONS -----
 
 export const sendEmailVerify = async (email?: string) => {
-  const user = auth().currentUser;
+  const user = getAuth().currentUser;
   if (user) {
     try {
       if (!user.email && email && email !== 'No email provided') {
@@ -164,7 +160,7 @@ export const sendEmailVerify = async (email?: string) => {
   }
 }
 
-export const handleSignInWithEmail = async (email: string, password: string, setError: React.Dispatch<React.SetStateAction<string>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, router: Router) => {
+export const handleSignInWithEmail = async (email: string, password: string, setError: React.Dispatch<React.SetStateAction<string>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, router: any) => {
     if (!email || !password) {
         setError('Please enter your email and password');
         return;
@@ -176,7 +172,7 @@ export const handleSignInWithEmail = async (email: string, password: string, set
     setLoading(true);
     setError('');
     try {
-      await signInWithEmailAndPassword(auth(), email, password);
+      await signInWithEmailAndPassword(getAuth(), email, password);
       setLoading(false);
       router.replace('/');
     } catch (error: any) {
@@ -191,7 +187,7 @@ export const handleSignInWithEmail = async (email: string, password: string, set
     }
 }
 
-export const handleSignUpWithEmail = async (email: string, password: string, name: string, confirmPassword: string, setError: React.Dispatch<React.SetStateAction<string>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, router: Router) => {
+export const handleSignUpWithEmail = async (email: string, password: string, name: string, confirmPassword: string, setError: React.Dispatch<React.SetStateAction<string>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, router: any) => {
     if (!email || !password || !name || !confirmPassword) {
         setError('Please enter your email and password');
         return;
@@ -207,10 +203,10 @@ export const handleSignUpWithEmail = async (email: string, password: string, nam
     setLoading(true);
     setError('');
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth(), email, password);
+      const userCredential = await createUserWithEmailAndPassword(getAuth(), email, password);
       const user = userCredential.user;
       await updateProfile(user, { displayName: name });
-      await saveUserDataToRTDB(auth().currentUser);
+      await saveUserDataToRTDB(getAuth().currentUser);
       await sendEmailVerification(user)
       setLoading(false);
       router.replace('/');
@@ -228,7 +224,7 @@ export const handleSignUpWithEmail = async (email: string, password: string, nam
 
 // ----- GOOGLE SIGN IN -----
 
-export const handleSignInWithGoogle = async (router: Router) => {
+export const handleSignInWithGoogle = async (router: any) => {
     const response = await GoogleSignin.signIn();
 
     if (response.type === 'success') {
@@ -239,8 +235,8 @@ export const handleSignInWithGoogle = async (router: Router) => {
         }
 
         const googleCredential = GoogleAuthProvider.credential(idToken);
-        await signInWithCredential(auth(), googleCredential);
-        await saveUserDataToRTDB(auth().currentUser);
+        await signInWithCredential(getAuth(), googleCredential);
+        await saveUserDataToRTDB(getAuth().currentUser);
         router.replace('/');
     } else {
         console.log('Google Sign-In was cancelled by the user');
@@ -256,9 +252,9 @@ const discovery = {
   tokenEndpoint: 'https://github.com/login/oauth/access_token',
 };
 
-export const handleSignInWithGithub = async (router: Router) => {
+export const handleSignInWithGithub = async (router: any) => {
   try {
-    const authInstance = auth();
+    const authInstance = getAuth();
     const GITHUB_CLIENT_ID = 'Ov23liXTy0ppJTeVC8Nm';
 
     const redirectUri = "justtalk://login";
@@ -306,7 +302,7 @@ export const handleSignInWithGithub = async (router: Router) => {
       if (accessToken) {
         const credential = GithubAuthProvider.credential(accessToken);
         await signInWithCredential(authInstance, credential);
-        await saveUserDataToRTDB(auth().currentUser);
+        await saveUserDataToRTDB(getAuth().currentUser);
         router.replace('/');
       } else {
         throw new Error('Failed to exchange code for token');
@@ -321,7 +317,7 @@ export const handleSignInWithGithub = async (router: Router) => {
 
 // ----- FACEBOOK SIGN IN -----
 
-// export const handleSignInWithFacebook = async (router: Router) => {
+// export const handleSignInWithFacebook = async (router: any) => {
 //   try {
 //     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
 
@@ -348,7 +344,7 @@ export const handleSignInWithGithub = async (router: Router) => {
 
 const saveUserDataToRTDB = async (user: any) => {
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-    set(ref(db, `users/${user.uid}`), {
+    update(ref(db, `users/${user.uid}`), {
         uid: user.uid,
         fullName: user.displayName,
         email: user.email,

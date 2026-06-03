@@ -1,10 +1,10 @@
-import auth, { onAuthStateChanged } from '@react-native-firebase/auth';
+import { getAuth, onAuthStateChanged } from '@react-native-firebase/auth';
 import ChatList from '@/components/ui/ChatList';
 import Filters from '@/components/ui/Filters';
 import Header from '@/components/ui/Header';
 import TabBar from '@/components/utils/TabBar';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -23,7 +23,7 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
-    const subscriber = onAuthStateChanged(auth(), (user) => {
+    const subscriber = onAuthStateChanged(getAuth(), (user) => {
       setLoggedIn(!!user);
       if (user) {
         subscribeToActivity(user.uid);

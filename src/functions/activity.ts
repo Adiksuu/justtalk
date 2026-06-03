@@ -1,4 +1,4 @@
-import auth from "@react-native-firebase/auth";
+import { getAuth } from "@react-native-firebase/auth";
 import { getApp } from "@react-native-firebase/app";
 import { DataSnapshot, get, getDatabase, onDisconnect, onValue, ref, serverTimestamp } from "@react-native-firebase/database";
 
@@ -54,7 +54,7 @@ export const subscribeToTypingStatus = (chatId: string, uid: string, callback: (
 // Function to set user typing in chatID with onDisconnect
 export const setUserTyping = (chatId: string, text: string) => {
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-    const uid = auth().currentUser?.uid;
+    const uid = getAuth().currentUser?.uid;
     const typingRef = ref(db, `typing/${chatId}/${uid}`);
 
     onValue(typingRef, (snapshot: DataSnapshot) => {
@@ -70,7 +70,7 @@ export const setUserTyping = (chatId: string, text: string) => {
 // Function to set user read messages in milliseconds
 export const setUserReadMessages = (chatId: string) => {
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-    const uid = auth().currentUser?.uid;
+    const uid = getAuth().currentUser?.uid;
 
     const readRef = ref(db, `chats/${chatId}/read/${uid}`);
     readRef.set(serverTimestamp());

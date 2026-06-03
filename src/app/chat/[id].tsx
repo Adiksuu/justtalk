@@ -126,7 +126,7 @@ export default function ChatScreen() {
     });
 
     const unsubscribeTheme = subscribeToChatTheme(id || '', (theme: any) => {
-      const themeColors = getChatThemeColors(theme.theme || "Classic");
+      const themeColors = getChatThemeColors(theme?.theme || "Classic");
       setChatTheme(themeColors);
     });
 

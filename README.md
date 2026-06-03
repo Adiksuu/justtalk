@@ -41,18 +41,18 @@ The project is structured as a single Expo Router application with file-based ro
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| **Framework** | React Native 0.81.5, Expo SDK 54 | Cross-platform mobile runtime |
-| **Language** | TypeScript 5.9 (strict mode) | Static type checking across the codebase |
+| **Framework** | React Native 0.85.3, Expo SDK 56 | Cross-platform mobile runtime |
+| **Language** | TypeScript 6.0.3 (strict mode) | Static type checking across the codebase |
 | **Routing** | Expo Router 6 | File-based navigation with typed routes |
 | **Database** | Firebase Realtime Database | Persistent storage and real-time data sync |
 | **Authentication** | Firebase Auth | Multi-provider identity management |
 | **Media Storage** | Cloudinary | Image and video upload, transformation, and delivery |
 | **Encryption** | CryptoJS (AES) | Client-side message encryption and decryption |
 | **State** | React built-in (useState, useMemo, useRef) | Local component state management |
-| **Animations** | React Native Animated API, React Native Reanimated 4 | Transition and gesture-driven animations |
-| **Gestures** | React Native Gesture Handler 2.28 | Swipe-to-reply, double-tap reactions, long-press menus |
-| **List Rendering** | Shopify FlashList 2.0 | High-performance virtualized message lists |
-| **Keyboard** | React Native Keyboard Controller 1.18 | Keyboard-aware input positioning |
+| **Animations** | React Native Animated API, React Native Reanimated 4.3 | Transition and gesture-driven animations |
+| **Gestures** | React Native Gesture Handler 2.31 | Swipe-to-reply, double-tap reactions, long-press menus |
+| **List Rendering** | Shopify FlashList 2.0.2 | High-performance virtualized message lists |
+| **Keyboard** | React Native Keyboard Controller 1.21 | Keyboard-aware input positioning |
 | **Haptics** | Expo Haptics | Tactile feedback for interactions |
 | **Notifications** | Expo Notifications | Push notification delivery via Expo push service |
 | **Biometrics** | Expo Local Authentication | Fingerprint and face authentication |

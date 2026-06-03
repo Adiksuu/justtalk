@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import ChatItem from '../utils/ChatItem';
 import { acceptNewFriend, cancelNewFriend, getUserData, subscribeToRequests } from '@/functions/friends';
 import SearchResult from './friends/SearchResult';
-import auth from "@react-native-firebase/auth";
+import { getAuth } from "@react-native-firebase/auth";
 import { formatTime, initChatListener } from '@/functions/messages';
 import NoFriends from './friends/NoFriends';
 import NoConnection from './NoConnection';
@@ -42,7 +42,7 @@ export default function ChatList({ filter }: ChatListProps) {
     }, []);
     
     useEffect(() => {
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
         if (!currentUser) return;
         
         const unsubscribe = subscribeToRequests({
@@ -151,7 +151,7 @@ function LiveChatItem({ friend, router, chatState }: { friend: any; router: any;
         return {
             text: chatState.lastMessage.isRemoved ? 'Message removed' : chatState.lastMessage.type === 'text' ? chatState.lastMessage.text : chatState.lastMessage.type === 'system' ? "Took a screenshot" : "Sent an attachment",
             time: formatTime(chatState.lastMessage.time),
-            sender: chatState.lastMessage.uid === auth().currentUser?.uid ? 'You' : currentName,
+            sender: chatState.lastMessage.uid === getAuth().currentUser?.uid ? 'You' : currentName,
             unreadCount: chatState.unreadCount || 0
         };
     }, [chatState.lastMessage, chatState.loading, chatState.unreadCount, currentName]);

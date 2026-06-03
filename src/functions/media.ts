@@ -3,7 +3,7 @@ import { getApp } from '@react-native-firebase/app';
 import { getDatabase, onValue, ref, update } from '@react-native-firebase/database';
 import * as ImagePicker from 'expo-image-picker';
 import { decryptMessage } from './crypto';
-import auth from "@react-native-firebase/auth";
+import { getAuth } from "@react-native-firebase/auth";
 
 const CLOUD_NAME = "dd3ppv7km"
 const UPLOAD_PRESET = "justtalk_app"
@@ -53,15 +53,25 @@ export const pickAndUploadMedia = async (setUploading: any, acceptOnly: string =
     const resourceApi: string = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
 
     try {
-        const uploadResponse: Response = await fetch(resourceApi, {
-            method: 'POST',
-            body: data,
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
+        const uploadData = await new Promise<any>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', resourceApi);
+            xhr.onload = () => {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    resolve(response);
+                } catch (e) {
+                    reject(new Error(`Failed to parse response: ${xhr.responseText}`));
+                }
+            };
+            xhr.onerror = () => {
+                reject(new Error('Upload failed due to a network error.'));
+            };
+            xhr.ontimeout = () => {
+                reject(new Error('Upload timed out.'));
+            };
+            xhr.send(data);
         });
-
-        const uploadData = await uploadResponse.json();
 
         if (uploadData.secure_url) {
             const directUrl: string = uploadData.secure_url;
@@ -151,7 +161,7 @@ export const subscribeToChatMedia = (chatId: string, setSharedMedia: any, setLoa
 
 // Function to update user profile picture
 export const updateUserProfilePicture = async (avatarUrl: string) => {
-    const user: any = auth().currentUser;
+    const user: any = getAuth().currentUser;
 
     if (!user || !avatarUrl) return;
 

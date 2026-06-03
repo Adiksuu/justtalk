@@ -53,7 +53,7 @@ export const getChatTheme = async (chatID: string) => {
 export const subscribeToChatTheme = (chatID: string, callback: (theme: string) => void) => {
   const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
   const subscription = onValue(ref(db, `chats/${chatID}/theme`), (snapshot) => {
-    callback(snapshot.val());
+    callback(snapshot.val() || "Classic");
   });
   return subscription;
 }

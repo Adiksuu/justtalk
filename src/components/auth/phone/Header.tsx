@@ -1,8 +1,7 @@
 import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native'
-import React from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import auth from '@react-native-firebase/auth'
+import { getAuth } from '@react-native-firebase/auth'
 
 export default function Header({ step, fadeAnim, slideAnim, setStep, setOtp }: { step: 'phone' | 'otp' | 'email'; fadeAnim: Animated.Value; slideAnim: Animated.Value; setStep: (step: 'phone' | 'otp' | 'email') => void; setOtp: (otp: string[]) => void }) {
   const router = useRouter()
@@ -18,7 +17,7 @@ export default function Header({ step, fadeAnim, slideAnim, setStep, setOtp }: {
             setStep('phone');
             setOtp(['', '', '', '', '', '']);
           } else if (step === 'email') {
-            auth().signOut()
+            getAuth().signOut()
               .then(() => {
                 fadeAnim.setValue(0);
                 slideAnim.setValue(30);

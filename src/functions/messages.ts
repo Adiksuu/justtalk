@@ -1,16 +1,16 @@
 import { Message } from "@/interfaces/Message";
 import { getApp } from "@react-native-firebase/app";
-import auth from "@react-native-firebase/auth";
 import { DataSnapshot, get, getDatabase, limitToLast, onValue, orderByKey, query, ref, serverTimestamp, update } from "@react-native-firebase/database";
 import { decryptMessage, encryptMessage } from "./crypto";
 import { getChatID, getUserData } from "./friends";
 import { sendRemotePushNotification } from "./notifications";
 import { heavyHaptic, lightHaptic } from "./preferences";
 import { getUnreadMessagesCount } from "./activity";
+import { getAuth } from "@react-native-firebase/auth";
 
 // Function to send messages
 export const sendMessage = async (message: string, chatId: string, friendUID: string, replyTo?: Message, type: string = "text", media?: string) => {
-    const currentUser = auth().currentUser;
+    const currentUser = getAuth().currentUser;
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const messageId = Date.now().toString();
 
@@ -35,7 +35,7 @@ export const sendMessage = async (message: string, chatId: string, friendUID: st
 
 // Function to send message about screenshot
 export const sendScreenshotNotificationMessage = async (chatId: string) => {
-    const currentUser = auth().currentUser;
+    const currentUser = getAuth().currentUser;
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const messageId = Date.now().toString();
 
@@ -125,7 +125,7 @@ export const subscribeToMessages = (
     return onValue(q, (snapshot: any) => {
         if (snapshot.exists()) {
             const formattedMessages: Message[] = [];
-            const currentUser = auth().currentUser;
+            const currentUser = getAuth().currentUser;
 
             snapshot.forEach((childSnapshot: DataSnapshot) => {
                 const messageValue = childSnapshot.val();
@@ -154,7 +154,7 @@ export const loadMoreMessages = async (chatId: string, limit: number) => {
         if (snapshot.exists()) {
             const messages = snapshot.val();
             const lastFewMessages: any = Object.values(messages).slice(-limit);
-            const currentUser = auth().currentUser;
+            const currentUser = getAuth().currentUser;
             const formattedMessages = lastFewMessages.map((message: Message) => {
                 return {
                     ...message,
@@ -181,7 +181,7 @@ export const initChatListener = async (uid: string, setChatState: any, unsubscri
 
     const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
     const chatRef = ref(db, `chats/${id}/messages`);
-    const currentUserId = auth().currentUser?.uid;
+    const currentUserId = getAuth().currentUser?.uid;
 
     let isFirstLoad = true;
     let cachedLatest: any = null;
@@ -237,7 +237,7 @@ export const reactToMessage = async (chatId: string, messageId: string, emoji: s
         
         const snapshot = await get(messageRef);
         const reactions = snapshot.exists() ? snapshot.val() : {};
-        const currentUser: any = auth().currentUser?.uid;
+        const currentUser: any = getAuth().currentUser?.uid;
         if (reactions[currentUser] === emoji) {
             await update(messageRef, {
                 [currentUser]: null

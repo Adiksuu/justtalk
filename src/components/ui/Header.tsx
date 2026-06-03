@@ -11,7 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { searchUser } from '@/functions/friends'
 import { addNewFriend } from '@/functions/friends'
-import auth from '@react-native-firebase/auth'
+import { getAuth } from '@react-native-firebase/auth'
 import SearchFriend from './friends/SearchFriend'
 import ResultsDropdownList from './friends/ResultsDropdownList'
 import SearchResult from './friends/SearchResult'
@@ -27,7 +27,7 @@ export default function Header() {
   const expandAnim = useRef(new Animated.Value(0)).current
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const currentUid = auth().currentUser?.uid
+  const currentUid = getAuth().currentUser?.uid
 
   const openSearch = useCallback(() => {
     setSearchOpen(true)

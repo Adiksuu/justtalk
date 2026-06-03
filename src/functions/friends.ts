@@ -1,13 +1,13 @@
 import { getApp } from "@react-native-firebase/app";
 import { DatabaseReference, get, getDatabase, onValue, ref, update } from "@react-native-firebase/database";
 
-import auth from "@react-native-firebase/auth";
+import { getAuth } from "@react-native-firebase/auth";
 
 // Add new friend request function
 export const addNewFriend = async (targetUID: string) => {
     try {
         const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser && targetUID) {
             await update(ref(db, `friends_requests/${currentUser.uid}/outgoing/`), {
@@ -30,7 +30,7 @@ export const addNewFriend = async (targetUID: string) => {
 export const cancelNewFriend = async (targetUID: string) => {
     try {
        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser && targetUID) {
             await update(ref(db, `friends_requests/${currentUser.uid}/outgoing/`), {
@@ -55,7 +55,7 @@ export const cancelNewFriend = async (targetUID: string) => {
 export const acceptNewFriend = async (targetUID: string) => {
     try {
        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser && targetUID) {
             await update(ref(db, `friends_requests/${currentUser.uid}/incoming/`), {
@@ -89,7 +89,7 @@ export const acceptNewFriend = async (targetUID: string) => {
 export const declineNewFriend = async (targetUID: string) => {
     try {
        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser && targetUID) {
             await update(ref(db, `friends_requests/${currentUser.uid}/incoming/`), {
@@ -114,7 +114,7 @@ export const declineNewFriend = async (targetUID: string) => {
 export const removeFriend = async (targetUID: string) => {
     try {
        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser && targetUID) {
             await update(ref(db, `friends/${currentUser.uid}/`), {
@@ -139,7 +139,7 @@ export const removeFriend = async (targetUID: string) => {
 export const searchUser = async (username: string) => {
     try {
        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser && username) {
             const snapshot = await get(ref(db, `users/`));
@@ -167,7 +167,7 @@ export const searchUser = async (username: string) => {
 export const getFriends = async () => {
     try {
        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser) {
             const snapshot = await get(ref(db, `friends/${currentUser.uid}/`));
@@ -262,7 +262,7 @@ export const subscribeToRequests = ({ filter, currentUserId, onDataChange, getUs
 export const getChatID = async (targetUID: string) => {
     try {
        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
-        const currentUser = auth().currentUser;
+        const currentUser = getAuth().currentUser;
 
         if (currentUser && targetUID) {
             const snapshot = await get(ref(db, `friends/${currentUser.uid}/${targetUID}/`));
