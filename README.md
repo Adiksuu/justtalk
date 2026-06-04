@@ -96,6 +96,7 @@ src/
 - Swipe-to-reply with visual reply preview in the input bar
 - Message reply threading with inline preview in the conversation
 - Message projects stored in the device's memory
+- Message searching feature with results dropdown
 - <img src="./assets/images/banners/message_showcase.png" height="550">
 
 ### Reactions
@@ -200,13 +201,15 @@ justtalk/
         ReplyBox.tsx        Reply context bar above the input
         ScrollToBottom.tsx  Floating scroll-to-bottom button
         details/
+          ChatThemes.tsx    Chat theme selector
           Header.tsx        Info subscreen header
           Informations.tsx  Friend account details
           Medias.tsx        Shared media grid
           ProfileInfo.tsx   Friend avatar, name (editable), and status
           RemoveFriendModal.tsx  Animated confirmation modal for friend removal
+          SearchResultsModal.tsx  Search results dropdown
+          SearchMessages.tsx Message searching with results dropdown
           VideoPlayer.tsx   Full-screen video player modal
-          ChatThemes.tsx    Chat theme selector
         messageTypes/
           ImageMessage.tsx  Image message renderer with full-screen preview
           LinkPreviewMessage.tsx  URL preview with metadata extraction

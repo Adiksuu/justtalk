@@ -23,6 +23,9 @@ import { SharedMediaItem } from '@/interfaces/SharedMediaItem';
 import { getMediaThumbnail, handleMediaPress, subscribeToChatMedia } from '@/functions/media';
 import { ifBiometricsEnabled } from '@/functions/preferences';
 import { handleBiometricAuth } from '@/functions/auth';
+import { Message } from '@/interfaces/Message';
+import SearchMessages from './details/SearchMessages';
+import SearchResultsModal from './details/SearchResultsModal';
 
 interface ChatInfoSubscreenProps {
   visible: boolean;
@@ -32,6 +35,9 @@ interface ChatInfoSubscreenProps {
   chatId: string;
   activeStatus: { state: string; lastSeen: number } | null;
   onFriendRemoved?: () => void;
+  messages: Message[];
+  chatTheme: string[];
+  onSelectMessage?: (messageId: string) => void;
 }
 
 export default function ChatInfoSubscreen({
@@ -42,6 +48,9 @@ export default function ChatInfoSubscreen({
   chatId,
   activeStatus,
   onFriendRemoved,
+  messages,
+  chatTheme,
+  onSelectMessage,
 }: ChatInfoSubscreenProps) {
   const [friendProfile, setFriendProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -57,6 +66,10 @@ export default function ChatInfoSubscreen({
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const backdropAnim = useRef(new Animated.Value(0)).current;
   const modalAnim = useRef(new Animated.Value(300)).current;
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResultsVisible, setSearchResultsVisible] = useState(false);
 
   useEffect(() => {
     if (!friendUID || !visible) return;
@@ -144,6 +157,15 @@ export default function ChatInfoSubscreen({
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <ProfileInfo name={name} activeStatus={activeStatus} friendId={friendUID} chatId={chatId} />
           <Informations friendProfile={friendProfile} loadingProfile={loadingProfile} />
+          <SearchMessages
+            messages={messages}
+            chatId={chatId}
+            onSearch={(query, results) => {
+              setSearchQuery(query);
+              setSearchResults(results);
+              setSearchResultsVisible(true);
+            }}
+          />
           <Medias sharedMedia={sharedMedia} loadingMedia={loadingMedia} getMediaThumbnail={getMediaThumbnail} handleMediaPress={(item, index) => handleMediaPress(item, index, sharedMedia, setPreviewImages, setImagePreviewIndex, setImagePreviewVisible, setSelectedVideoUrl)} />
           <ChatThemes chatId={chatId} />
           <TouchableOpacity
@@ -182,6 +204,21 @@ export default function ChatInfoSubscreen({
           name={name}
         />
       )}
+
+      <SearchResultsModal
+        visible={searchResultsVisible}
+        onClose={() => setSearchResultsVisible(false)}
+        query={searchQuery}
+        results={searchResults}
+        friendName={name}
+        chatTheme={chatTheme}
+        onSelectMessage={(messageId) => {
+          setSearchResultsVisible(false);
+          if (onSelectMessage) {
+            onSelectMessage(messageId);
+          }
+        }}
+      />
     </Modal>
   );
 }
