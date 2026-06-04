@@ -227,6 +227,8 @@ export default function ChatScreen() {
             setInfoVisible(false);
             router.back();
           }}
+          messages={processedMessages}
+          chatTheme={chatTheme || ['#7C3AED', '#6366F1']}
         />
       )}
     </GestureHandlerRootView>
