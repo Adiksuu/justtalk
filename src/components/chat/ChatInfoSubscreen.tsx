@@ -37,6 +37,7 @@ interface ChatInfoSubscreenProps {
   onFriendRemoved?: () => void;
   messages: Message[];
   chatTheme: string[];
+  onSelectMessage?: (messageId: string) => void;
 }
 
 export default function ChatInfoSubscreen({
@@ -49,6 +50,7 @@ export default function ChatInfoSubscreen({
   onFriendRemoved,
   messages,
   chatTheme,
+  onSelectMessage,
 }: ChatInfoSubscreenProps) {
   const [friendProfile, setFriendProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -210,6 +212,12 @@ export default function ChatInfoSubscreen({
         results={searchResults}
         friendName={name}
         chatTheme={chatTheme}
+        onSelectMessage={(messageId) => {
+          setSearchResultsVisible(false);
+          if (onSelectMessage) {
+            onSelectMessage(messageId);
+          }
+        }}
       />
     </Modal>
   );

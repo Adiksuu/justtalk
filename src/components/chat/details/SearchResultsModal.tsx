@@ -26,6 +26,7 @@ interface SearchResultsModalProps {
   results: SearchResultItem[];
   friendName: string;
   chatTheme: string[];
+  onSelectMessage: (messageId: string) => void;
 }
 
 export default function SearchResultsModal({
@@ -35,6 +36,7 @@ export default function SearchResultsModal({
   results,
   friendName,
   chatTheme,
+  onSelectMessage,
 }: SearchResultsModalProps) {
   const currentUser = getAuth().currentUser;
 
@@ -67,7 +69,11 @@ export default function SearchResultsModal({
     const friendUID = item.message.uid;
 
     return (
-      <View style={styles.resultItem}>
+      <TouchableOpacity
+        style={styles.resultItem}
+        activeOpacity={0.8}
+        onPress={() => onSelectMessage(item.message.id)}
+      >
         <View style={styles.avatarContainer}>
           <Avatar friendUID={isMe ? currentUser?.uid : friendUID} fullName={senderName} />
         </View>
@@ -82,7 +88,7 @@ export default function SearchResultsModal({
             {highlightText(item.decryptedText, query)}
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
