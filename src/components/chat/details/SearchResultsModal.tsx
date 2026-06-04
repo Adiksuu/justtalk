@@ -12,6 +12,7 @@ import { getInitials } from '@/functions/profile';
 import { getAuth } from '@react-native-firebase/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
+import Avatar from '../Avatar';
 
 interface SearchResultItem {
   message: Message;
@@ -62,15 +63,13 @@ export default function SearchResultsModal({
   const renderItem = ({ item }: { item: SearchResultItem }) => {
     const isMe = item.message.uid === currentUser?.uid;
     const senderName = isMe ? 'You' : friendName;
-    const initials = getInitials(senderName);
     const formattedDate = formatTime(item.message.time);
+    const friendUID = item.message.uid;
 
     return (
       <View style={styles.resultItem}>
         <View style={styles.avatarContainer}>
-          <View style={[styles.avatar, isMe ? styles.myAvatar : styles.friendAvatar]}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          <Avatar friendUID={isMe ? currentUser?.uid : friendUID} fullName={senderName} />
         </View>
         <View style={styles.messageContent}>
           <View style={styles.messageHeader}>

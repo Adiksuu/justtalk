@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Message } from '@/interfaces/Message';
@@ -6,11 +6,11 @@ import { decryptMessage } from '@/functions/crypto';
 
 interface SearchResultItem {
   message: Message;
-  decryptedText: string;
+  decryptedText: string ;
 }
 
 interface SearchMessagesProps {
-  messages: Message[];
+  messages: Message[] | any;
   chatId: string;
   onSearch: (query: string, results: SearchResultItem[]) => void;
 }
@@ -25,8 +25,7 @@ export default function SearchMessages({ messages, chatId, onSearch }: SearchMes
     const query = trimmed.toLowerCase();
     const results: SearchResultItem[] = [];
 
-    messages.forEach((m) => {
-      if (m.text && !m.isRemoved && m.type !== 'system' && m.type !== 'typing') {
+    messages.filter((m: any) => m.type === 'text' && !m.isRemoved).forEach((m: any) => {
         const decrypted = decryptMessage(m.text, chatId);
         if (decrypted.toLowerCase().includes(query)) {
           results.push({
@@ -34,7 +33,6 @@ export default function SearchMessages({ messages, chatId, onSearch }: SearchMes
             decryptedText: decrypted,
           });
         }
-      }
     });
 
     onSearch(trimmed, results);
