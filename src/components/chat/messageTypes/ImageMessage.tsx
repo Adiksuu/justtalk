@@ -5,6 +5,7 @@ import { Message } from '@/interfaces/Message';
 import ImagePreview from '@/components/utils/ImagePreview';
 import { formatTime } from '@/functions/messages';
 import RenderReactions from '../RenderReactions';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
@@ -36,6 +37,9 @@ export default function ImageMessage({message}: {message: Message}) {
                 />
               </TouchableOpacity>
               <View style={bubbleStyles.imageTimeOverlay}>
+                {message.isPinned && (
+                  <Ionicons name="pin" size={11} color="#FFFFFF" style={{ marginRight: 3, transform: [{ rotate: '45deg' }] }} />
+                )}
                 <Text style={bubbleStyles.imageTime}>{formatTime(time)}</Text>
                 {isSent && <ReadReceipt isRead={isRead} />}
               </View>

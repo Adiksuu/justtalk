@@ -2,7 +2,9 @@ import { THEMES } from "@/constants/THEMES";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getApp } from "@react-native-firebase/app";
 import { get, getDatabase, onValue, ref, update } from "@react-native-firebase/database";
-import { Alert, Linking } from "react-native";
+import { Linking } from "react-native";
+import { Message } from "@/interfaces/Message";
+import { decryptMessage } from "./crypto";
 
 export const scrollToBottom = (scrollViewRef: React.RefObject<any>) => {
     scrollViewRef.current?.scrollToOffset({ animated: true });
@@ -66,3 +68,50 @@ export const getChatThemeColors = (theme: string | any) => {
 export const handleOpenExternalBrowser = async (url: string) => {
   Linking.openURL(url).catch((err) => console.error('Failed to open URL:', err));
 };
+
+export interface SearchResultItem {
+  message: Message;
+  decryptedText: string;
+}
+
+export const searchMessages = (messages: Message[] | any[], query: string, chatId: string): SearchResultItem[] => {
+    const results: SearchResultItem[] = [];
+    const lowerQuery = query.toLowerCase();
+
+    if (!Array.isArray(messages)) return results;
+
+    messages.filter((m: any) => m.type === 'text' && !m.isRemoved).forEach((m: any) => {
+        const decrypted = decryptMessage(m.text || '', chatId);
+        if (decrypted.toLowerCase().includes(lowerQuery)) {
+          results.push({
+            message: m,
+            decryptedText: decrypted,
+          });
+        }
+    });
+
+    return results;
+}
+
+export const getPinnedMessages = (messages: Message[] | any[], chatId: string): SearchResultItem[] => {
+    const results: SearchResultItem[] = [];
+
+    if (!Array.isArray(messages)) return results;
+
+    messages.filter((m: any) => m.isPinned && !m.isRemoved).forEach((m: any) => {
+        let decrypted = '';
+        if (m.type === 'image') {
+          decrypted = '[Photo]';
+        } else if (m.type === 'video') {
+          decrypted = '[Video]';
+        } else if (m.text) {
+          decrypted = decryptMessage(m.text, chatId);
+        }
+        results.push({
+          message: m,
+          decryptedText: decrypted,
+        });
+    });
+
+    return results;
+}

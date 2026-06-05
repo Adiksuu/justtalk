@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Pressable, Clipboard } from 'react-native';
-import React from 'react';
 import { Message } from '@/interfaces/Message';
 import { reactToMessage, removeMessage, pinMessage } from '@/functions/messages';
 import { decryptMessage } from '@/functions/crypto';
@@ -77,7 +76,6 @@ export default function ReactionMenu({ message, chatId, setShowMenu, setReplying
         <View style={styles.sheet}>
           <View style={styles.handle} />
           
-          {/* Reaction Emojis Row */}
           {!message.isRemoved && (
             <View style={styles.emojiRow}>
               {['❤️', '😂', '😮', '😢', '🙏', '👍', '🔥'].map((emoji) => (
@@ -96,7 +94,6 @@ export default function ReactionMenu({ message, chatId, setShowMenu, setReplying
             </View>
           )}
           
-          {/* Actions List */}
           <View style={styles.actionList}>
             {actions
               .filter((action) => action.show)

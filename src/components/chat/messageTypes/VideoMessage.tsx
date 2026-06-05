@@ -48,6 +48,9 @@ export default function VideoMessage({ message }: { message: Message }) {
           </View>
 
           <View style={bubbleStyles.videoTimeOverlay} pointerEvents="none">
+            {message.isPinned && (
+              <Ionicons name="pin" size={11} color="#FFFFFF" style={{ marginRight: 3, transform: [{ rotate: '45deg' }] }} />
+            )}
             <Text style={bubbleStyles.videoTime}>{formatTime(time)}</Text>
             {isSent && <ReadReceipt isRead={isRead} />}
           </View>
