@@ -264,3 +264,16 @@ export const removeMessage = async (chatId: string, messageId: string) => {
         console.error("Error removing message:", error);
     }
 }
+
+// Function to pin/unpin message
+export const pinMessage = async (chatId: string, messageId: string, isPinned: boolean) => {
+    try {
+        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const messageRef = ref(db, `chats/${chatId}/messages/${messageId}`);
+        await update(messageRef, {
+            isPinned: isPinned
+        });
+    } catch (error) {
+        console.error("Error pinning message:", error);
+    }
+}
