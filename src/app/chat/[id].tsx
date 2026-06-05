@@ -9,7 +9,7 @@ import InputBar from '@/components/chat/InputBar';
 import MessageBubble from '@/components/chat/MessageBubble';
 import ChatHeader from '@/components/chat/ChatHeader';
 import { Message } from '@/interfaces/Message';
-import { sendScreenshotNotificationMessage, subscribeToMessages } from '@/functions/messages';
+import { handleSelectMessage, sendScreenshotNotificationMessage, subscribeToMessages } from '@/functions/messages';
 import { setUserReadMessages, setUserTyping, subscribeToTypingStatus, subscribeToUserReadTime, subscribeToUserActivity } from '@/functions/activity';
 import ChatInfoSubscreen from '@/components/chat/ChatInfoSubscreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -227,6 +227,9 @@ export default function ChatScreen() {
             setInfoVisible(false);
             router.back();
           }}
+          messages={processedMessages}
+          chatTheme={chatTheme || ['#7C3AED', '#6366F1']}
+          onSelectMessage={(id) => handleSelectMessage(id, setInfoVisible, scrollViewRef, processedMessages)}
         />
       )}
     </GestureHandlerRootView>

@@ -265,6 +265,34 @@ export const removeMessage = async (chatId: string, messageId: string) => {
     }
 }
 
+// Function to select message and scroll to it
+export const handleSelectMessage = (messageId: string, setInfoVisible: (visible: boolean) => void, scrollViewRef: any, processedMessages: Message[]) => {
+    setInfoVisible(false);
+    const index = processedMessages.findIndex((m) => m.id === messageId);
+    if (index !== -1) {
+      setTimeout(() => {
+        try {
+          (scrollViewRef.current as any)?.scrollToIndex({
+            index,
+            animated: true,
+            viewPosition: 0.5,
+          });
+        } catch (err) {
+          console.warn('scrollToIndex failed, trying scrollToItem:', err);
+          try {
+            (scrollViewRef.current as any)?.scrollToItem({
+              item: processedMessages[index],
+              animated: true,
+              viewPosition: 0.5,
+            });
+          } catch (itemErr) {
+            console.error('scrollToItem also failed:', itemErr);
+          }
+        }
+      }, 300);
+    }
+  };
+
 // Function to pin/unpin message
 export const pinMessage = async (chatId: string, messageId: string, isPinned: boolean) => {
     try {
