@@ -5,6 +5,7 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import ReadReceipt from '../ReadReceipt';
 import { formatTime } from '@/functions/messages';
 import RenderReactions from '../RenderReactions';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
@@ -28,6 +29,9 @@ export default function TextMessage({ message, chatTheme }: { message: Message, 
               {text}
             </Text>
             <View style={styles.metaRow}>
+              {message.isPinned && (
+                <Ionicons name="pin" size={11} color="rgba(255,255,255,0.7)" style={{ marginRight: 3, transform: [{ rotate: '45deg' }] }} />
+              )}
               <Text style={[styles.timeText, { color: 'rgba(255,255,255,0.6)' }]}>{formatTime(time)}</Text>
               <ReadReceipt isRead={isRead} />
             </View>
@@ -41,6 +45,9 @@ export default function TextMessage({ message, chatTheme }: { message: Message, 
               {text}
             </Text>
             <View style={styles.metaRow}>
+              {message.isPinned && (
+                <Ionicons name="pin" size={11} color="#8F94A3" style={{ marginRight: 3, transform: [{ rotate: '45deg' }] }} />
+              )}
               <Text style={styles.timeText}>{formatTime(time)}</Text>
             </View>
           </View>

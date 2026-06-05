@@ -101,7 +101,12 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
       {renderReplyPreview()}
       
       {isMenuOpen && (
-        <ReactionMenu message={message} chatId={chatId} setShowMenu={onToggleMenu} />
+        <ReactionMenu 
+          message={message} 
+          chatId={chatId} 
+          setShowMenu={onToggleMenu} 
+          setReplyingToMessage={setReplyingToMessage}
+        />
       )}
 
       <Swipeable

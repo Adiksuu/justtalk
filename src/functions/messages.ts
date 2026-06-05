@@ -291,4 +291,39 @@ export const handleSelectMessage = (messageId: string, setInfoVisible: (visible:
         }
       }, 300);
     }
-  };
+};
+
+export const sendPinnedNotificationMessage = async (chatId: string, isPinned: boolean) => {
+    const currentUser = getAuth().currentUser;
+    const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+    const messageId = Date.now().toString();
+
+    const fullName: string = (await getUserData(currentUser?.uid || '')).fullName;
+
+    const encryptedText = encryptMessage(`${fullName} ${isPinned ? 'pinned' : 'unpinned'} a message.`, chatId);
+    
+    await update(ref(db, `chats/${chatId}/messages/`), {
+        [messageId]: {
+            id: messageId,
+            type: 'system',
+            text: encryptedText,
+            time: serverTimestamp(),
+            uid: currentUser?.uid,
+        },
+    });
+}
+
+// Function to pin/unpin message
+export const pinMessage = async (chatId: string, messageId: string, isPinned: boolean) => {
+    try {
+        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const messageRef = ref(db, `chats/${chatId}/messages/${messageId}`);
+        await update(messageRef, {
+            isPinned: isPinned
+        });
+        lightHaptic();
+        await sendPinnedNotificationMessage(chatId, isPinned);
+    } catch (error) {
+        console.error("Error pinning message:", error);
+    }
+}

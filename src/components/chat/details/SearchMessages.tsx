@@ -2,12 +2,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Message } from '@/interfaces/Message';
-import { decryptMessage } from '@/functions/crypto';
-
-interface SearchResultItem {
-  message: Message;
-  decryptedText: string ;
-}
+import { searchMessages, getPinnedMessages, SearchResultItem } from '@/functions/utility';
 
 interface SearchMessagesProps {
   messages: Message[] | any;
@@ -22,20 +17,13 @@ export default function SearchMessages({ messages, chatId, onSearch }: SearchMes
     const trimmed = searchText.trim();
     if (!trimmed) return;
     
-    const query = trimmed.toLowerCase();
-    const results: SearchResultItem[] = [];
-
-    messages.filter((m: any) => m.type === 'text' && !m.isRemoved).forEach((m: any) => {
-        const decrypted = decryptMessage(m.text, chatId);
-        if (decrypted.toLowerCase().includes(query)) {
-          results.push({
-            message: m,
-            decryptedText: decrypted,
-          });
-        }
-    });
-
+    const results = searchMessages(messages, trimmed, chatId);
     onSearch(trimmed, results);
+  };
+
+  const handleShowPinned = () => {
+    const results = getPinnedMessages(messages, chatId);
+    onSearch('Pinned Messages', results);
   };
 
   const handleClear = () => {
@@ -63,6 +51,9 @@ export default function SearchMessages({ messages, chatId, onSearch }: SearchMes
             <Ionicons name="close-circle" size={18} color="#8F94A3" />
           </TouchableOpacity>
         )}
+        <TouchableOpacity onPress={handleShowPinned} activeOpacity={0.7} style={styles.pinnedBtn}>
+          <Ionicons name="alert-circle-outline" size={20} color="#8F94A3" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -104,5 +95,9 @@ const styles = StyleSheet.create({
   },
   clearBtn: {
     padding: 4,
+  },
+  pinnedBtn: {
+    padding: 4,
+    marginLeft: 8,
   },
 });
