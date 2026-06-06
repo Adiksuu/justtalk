@@ -54,14 +54,14 @@ export default function InputBar({
     fetch();
   }, [chatId]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (isEditing) {
       if (text.trim() === '') {
         setIsEditing(false)
         onCancelReply()
         return;
       }
-      editMessage(chatId || '', messageId || '', text);
+      await editMessage(chatId || '', messageId || '', text);
       setIsEditing(false)
       setUserTyping(chatId, "");
       setText('');

@@ -11,6 +11,7 @@ export interface Message {
   isPinned?: boolean;
   reactions?: { [key: string]: string };
   replyingTo?: Message;
+  isEdited?: boolean;
 }
 
 

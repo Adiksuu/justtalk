@@ -335,6 +335,7 @@ export const editMessage = async (chatId: string, messageId: string, text: strin
         const messageRef = ref(db, `chats/${chatId}/messages/${messageId}`);
         await update(messageRef, {
             text: encryptMessage(text, chatId),
+            isEdited: true,
         });
     } catch (error) {
         console.error("Error editing message:", error);

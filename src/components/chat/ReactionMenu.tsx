@@ -9,8 +9,8 @@ interface ReactionMenuProps {
     chatId: string;
     setShowMenu: (show: boolean) => void;
     setReplyingToMessage?: (message: Message | null) => void;
-    setMessageId?: (messageId: string | null) => void;
-    setIsEditing?: (editing: boolean) => void;
+    setMessageId?: any;
+    setIsEditing?: any;
     isEditing?: boolean;
 }
 
@@ -24,7 +24,7 @@ export default function ReactionMenu({ message, chatId, setShowMenu, setReplying
       textColor: '#E5E7EB',
       onPress: () => {
         if (isEditing) {
-          setMessageId(undefined);
+          setMessageId(null);
           setIsEditing(false);
         } else {
           setMessageId(message.id);
@@ -32,7 +32,7 @@ export default function ReactionMenu({ message, chatId, setShowMenu, setReplying
         }
         setShowMenu(false);
       },
-      show: message.isSent && !message.isRemoved,
+      show: message.isSent && !message.isRemoved && message.type === 'text',
     },
     {
         id: 'pin',
