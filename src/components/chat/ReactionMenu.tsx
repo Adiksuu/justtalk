@@ -9,10 +9,31 @@ interface ReactionMenuProps {
     chatId: string;
     setShowMenu: (show: boolean) => void;
     setReplyingToMessage?: (message: Message | null) => void;
+    setMessageId?: (messageId: string | null) => void;
+    setIsEditing?: (editing: boolean) => void;
+    isEditing?: boolean;
 }
 
-export default function ReactionMenu({ message, chatId, setShowMenu, setReplyingToMessage }: ReactionMenuProps) {
+export default function ReactionMenu({ message, chatId, setShowMenu, setReplyingToMessage, setMessageId, setIsEditing, isEditing }: ReactionMenuProps) {
   const actions = [
+    {
+      id: 'edit',
+      label: `${isEditing ? 'Cancel' : 'Edit'} Message`,
+      icon: 'pencil-outline' as const,
+      iconColor: '#E5E7EB',
+      textColor: '#E5E7EB',
+      onPress: () => {
+        if (isEditing) {
+          setMessageId(undefined);
+          setIsEditing(false);
+        } else {
+          setMessageId(message.id);
+          setIsEditing(true);
+        }
+        setShowMenu(false);
+      },
+      show: message.isSent && !message.isRemoved,
+    },
     {
         id: 'pin',
         label: message.isPinned ? 'Unpin Message' : 'Pin Message',

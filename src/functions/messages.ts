@@ -327,3 +327,16 @@ export const pinMessage = async (chatId: string, messageId: string, isPinned: bo
         console.error("Error pinning message:", error);
     }
 }
+
+// Function to edit message
+export const editMessage = async (chatId: string, messageId: string, text: string) => {
+    try {
+        const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+        const messageRef = ref(db, `chats/${chatId}/messages/${messageId}`);
+        await update(messageRef, {
+            text: encryptMessage(text, chatId),
+        });
+    } catch (error) {
+        console.error("Error editing message:", error);
+    }
+}

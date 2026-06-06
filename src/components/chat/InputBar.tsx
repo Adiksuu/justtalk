@@ -4,7 +4,7 @@ import { StyleSheet, TextInput, TouchableOpacity, View, Platform, Text } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardStickyView, useKeyboardHandler } from 'react-native-keyboard-controller';
 import { runOnJS } from 'react-native-reanimated';
-import { sendMessage } from '@/functions/messages';
+import { editMessage, sendMessage } from '@/functions/messages';
 import { setUserTyping } from '@/functions/activity';
 import { Message } from '@/interfaces/Message';
 import ReplyBox from './ReplyBox';
@@ -16,13 +16,19 @@ export default function InputBar({
   friendUID, 
   replyingTo, 
   onCancelReply,
-  chatTheme
+  chatTheme,
+  isEditing,
+  setIsEditing,
+  messageId
 }: { 
   chatId: string, 
   friendUID: string, 
   replyingTo: Message | null, 
   onCancelReply: () => void,
-  chatTheme: any
+  chatTheme: any,
+  isEditing: boolean,
+  setIsEditing: (editing: boolean) => void,
+  messageId?: string
 }) {
   const [text, setText] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
@@ -49,6 +55,20 @@ export default function InputBar({
   }, [chatId]);
 
   const handleSendMessage = () => {
+    if (isEditing) {
+      if (text.trim() === '') {
+        setIsEditing(false)
+        onCancelReply()
+        return;
+      }
+      editMessage(chatId || '', messageId || '', text);
+      setIsEditing(false)
+      setUserTyping(chatId, "");
+      setText('');
+      onCancelReply();
+      setMessageDraft('', chatId)
+      return;
+    }
     if (text.trim() !== '') {
       sendMessage(text, chatId, friendUID, replyingTo || undefined, 'text');
       setUserTyping(chatId, "");
@@ -89,8 +109,8 @@ export default function InputBar({
 
         <View style={inputStyles.inputWrapper}>
           <TextInput
-            placeholder={uploading ? 'Uploading media...' : 'Message'}
-            placeholderTextColor={uploading ? '#6B7280' : '#9CA3AF'}
+            placeholder={uploading ? 'Uploading media...' : (isEditing ? 'Editing message...' : 'Message')}
+            placeholderTextColor={uploading ? '#6B7280' : (isEditing ? '#6B7280' : '#9CA3AF')}
             style={[inputStyles.input, uploading && inputStyles.disabled]}
             value={text}
             editable={!uploading}
