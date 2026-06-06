@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import MessagePreview from './MessagePreview';
 import VideoMessage from './messageTypes/VideoMessage';
 
-export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setReplyingToMessage, chatTheme }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void, setReplyingToMessage: (message: Message | null) => void, chatTheme: string }) {
+export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setReplyingToMessage, chatTheme, isEditing, setIsEditing, setMessageId }: { message: Message, isMenuOpen: boolean, onToggleMenu: (open: boolean) => void, setReplyingToMessage: (message: Message | null) => void, chatTheme: string, isEditing: boolean, setIsEditing: (editing: boolean) => void, setMessageId: (messageId: string | null) => void }) {
   const { type, isSent, isRemoved } = message;
   const { id: chatId } = useLocalSearchParams<{ id: string }>();
   const swipeableRef = useRef<Swipeable>(null);
@@ -106,6 +106,9 @@ export default function MessageBubble({ message, isMenuOpen, onToggleMenu, setRe
           chatId={chatId} 
           setShowMenu={onToggleMenu} 
           setReplyingToMessage={setReplyingToMessage}
+          setMessageId={setMessageId}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
         />
       )}
 

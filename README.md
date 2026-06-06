@@ -98,6 +98,7 @@ src/
 - Message projects stored in the device's memory
 - Message searching feature with results dropdown
 - Pinning and unpinning messages with system notifications 
+- Editing messages with '• edited' badge (by adding isEdited flag to message)
 - <img src="./assets/images/banners/message_showcase.png" height="550">
 
 ### Reactions

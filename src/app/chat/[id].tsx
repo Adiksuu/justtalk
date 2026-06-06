@@ -44,6 +44,8 @@ export default function ChatScreen() {
   const scrollViewRef = useRef(null); 
   const [chatName, setChatName] = useState(name);
   const [chatTheme, setChatTheme]: any = useState();
+  const [isEditing, setIsEditing] = useState(false);
+  const [messageId, setMessageId] = useState<string | null>(null);
 
   useEffect(() => {
         if (!id || !friendUID) return;
@@ -181,6 +183,9 @@ export default function ChatScreen() {
                     onToggleMenu={(open: boolean) => setActiveMenuMessageId(open ? item.id : null)} 
                     setReplyingToMessage={setReplyingToMessage} 
                     chatTheme={chatTheme || ['#7C3AED', '#6366F1']}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    setMessageId={setMessageId}
                   />
                 </View>
             )}
@@ -207,12 +212,12 @@ export default function ChatScreen() {
           />
           {isFriendTyping ? (
             <View style={{ transform: [{ scaleY: -1 }], paddingBottom: 8 }}>
-              <MessageBubble message={{ type: 'typing', text: `${chatName} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} setReplyingToMessage={setReplyingToMessage} chatTheme={chatTheme || ['#7C3AED', '#6366F1']}/>
+              <MessageBubble message={{ type: 'typing', text: `${chatName} is typing...`, uid: '', id: 'typing', time: '',  }} isMenuOpen={false} onToggleMenu={() => {}} setReplyingToMessage={setReplyingToMessage} chatTheme={chatTheme || ['#7C3AED', '#6366F1']} isEditing={isEditing} setIsEditing={setIsEditing} setMessageId={setMessageId} />
             </View>
           ) : null}
         </View>
         <ScrollToBottom showButton={showButton} scrollViewRef={scrollViewRef} />
-        <InputBar chatId={id || ''} friendUID={friendUID || ''} replyingTo={replyingToMessage} onCancelReply={() => setReplyingToMessage(null)} chatTheme={chatTheme || ['#7C3AED', '#6366F1']} />
+        <InputBar chatId={id || ''} friendUID={friendUID || ''} replyingTo={replyingToMessage} onCancelReply={() => setReplyingToMessage(null)} chatTheme={chatTheme || ['#7C3AED', '#6366F1']} isEditing={isEditing} setIsEditing={setIsEditing} messageId={messageId || ''} />
       </KeyboardAvoidingView>
 
       {friendUID && (

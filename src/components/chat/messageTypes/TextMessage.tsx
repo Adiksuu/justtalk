@@ -11,7 +11,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_BUBBLE_WIDTH = SCREEN_WIDTH * 0.72;
 
 export default function TextMessage({ message, chatTheme }: { message: Message, chatTheme: string }) {
-  const { text, time, isSent, isRead, reactions } = message;
+  const { text, time, isSent, isRead, reactions, isEdited } = message;
 
   const hasReactions = reactions && Object.keys(reactions).length > 0;
 
@@ -25,6 +25,9 @@ export default function TextMessage({ message, chatTheme }: { message: Message, 
             end={{ x: 1, y: 1 }}
             style={[styles.bubble, styles.bubbleSent]}
           >
+            {isEdited && (
+              <Text style={styles.editedBadge}>• edited</Text>
+            )}
             <Text style={[styles.messageText, styles.messageTextSent]}>
               {text}
             </Text>
@@ -106,5 +109,11 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 11,
     color: '#6B7280',
+  },
+  editedBadge: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.6)',
+    fontStyle: 'italic',
+    marginBottom: 2,
   },
 });
