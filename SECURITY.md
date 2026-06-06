@@ -7,7 +7,7 @@ The following table describes which versions of JustTalk currently receive secur
 | Version  | Supported |
 | -------- | --------- |
 | 1.0.17   | ✅         |
-| 1.0.16   | ✅         |
+| 1.0.16   | ❌         |
 | 1.0.15   | ❌         |
 | < 1.0.15 | ❌         |
 
