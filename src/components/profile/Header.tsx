@@ -1,15 +1,18 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 
 export default function Header() {
+  const router = useRouter()
+
   return (
     <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
         <TouchableOpacity 
         style={styles.settingsButton} 
         activeOpacity={0.7}
-        onPress={() => Alert.alert('Settings', 'Settings details and preferences editing are coming soon!')}
+        onPress={() => router.push('/settings')}
         >
         <Ionicons name="settings-outline" size={24} color="#F9FAFB" />
         </TouchableOpacity>
