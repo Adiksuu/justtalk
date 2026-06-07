@@ -1,7 +1,11 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { removeUserAvatar } from '@/functions/profile'
+import { useState } from 'react';
 
 export default function RemoveAvatar() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   return (
     <>
       <Text style={styles.sectionTitle}>Avatar</Text>
@@ -9,6 +13,7 @@ export default function RemoveAvatar() {
         <TouchableOpacity
           activeOpacity={0.7}
           style={styles.row}
+          onPress={() => removeUserAvatar(setIsLoading)}
         >
           <View style={styles.rowLeft}>
             <View style={styles.iconBg}>
@@ -20,7 +25,11 @@ export default function RemoveAvatar() {
             </View>
           </View>
           <View style={styles.actionBadge}>
-            <Ionicons name="trash-outline" size={16} color="#F59E0B" />
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#F59E0B" />
+            ) : (
+              <Ionicons name="trash-outline" size={16} color="#F59E0B" />
+            )}
           </View>
         </TouchableOpacity>
       </View>

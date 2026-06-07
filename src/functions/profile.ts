@@ -1,7 +1,7 @@
 import { UserProfileData } from "@/interfaces/UserProfileData";
 import auth, { getAuth } from "@react-native-firebase/auth";
 import { getApp } from "@react-native-firebase/app";
-import { get, getDatabase, ref } from "@react-native-firebase/database";
+import { get, getDatabase, ref, update } from "@react-native-firebase/database";
 
 export const formatJoinedDate = (isoString?: string) => {
     if (!isoString) return 'May 2026';
@@ -81,4 +81,25 @@ export const fetchUserProfile = (router: any, setProfile: React.Dispatch<React.S
         console.error("RTDB access error:", e);
         setLoading(false);
     }
+}
+
+export const removeUserAvatar = async (setIsLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
+  setIsLoading(true);
+  const db = getDatabase(getApp(), "https://justtalk-app-default-rtdb.europe-west1.firebasedatabase.app");
+  const user = getAuth().currentUser;
+  
+  if(!user) {
+    setIsLoading(false);
+    return;
+  }
+
+  const userRef = ref(db, `users/${user.uid}`);
+
+  try {
+    await update(userRef, { avatar: null });
+    setIsLoading(false);
+  } catch (e) {
+    console.error("Error removing avatar:", e);
+    setIsLoading(false);
+  }
 }
