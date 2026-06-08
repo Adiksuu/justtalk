@@ -1,6 +1,6 @@
 # JustTalk
 
-A real-time mobile messaging application built with React Native and Expo, targeting Android and iOS (iOS maybe later :p). JustTalk provides end-to-end encrypted conversations, multi-provider authentication, media sharing via Cloudinary, and a suite of interactive chat features -- all backed by Firebase Realtime Database for low-latency data synchronization.
+A real-time mobile messaging application built with React Native and Expo, targeting Android. JustTalk provides end-to-end encrypted conversations, multi-provider authentication, media sharing via Cloudinary, and a suite of interactive chat features -- all backed by Firebase Realtime Database for low-latency data synchronization.
 
 **Current version:** 1.0.17 
 **Package identifier:** `pl.adiksuu.justtalk`  
